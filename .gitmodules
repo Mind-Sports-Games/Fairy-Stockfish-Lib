@@ -1,0 +1,3 @@
+[submodule "vendor/Fairy-Stockfish"]
+	path = vendor/Fairy-Stockfish
+	url = git@github.com:ianfab/Fairy-Stockfish.git

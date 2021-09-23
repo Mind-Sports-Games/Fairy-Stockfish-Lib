@@ -1,0 +1,6 @@
+(A) Implement C++ lib mimicing pyffish API +cpp 
+(A) Implement java API using C++ and javacpp +javacpp +java
+(A) Get loading in scala. +scala 
+(B) Stub out strategy games backend +scala +strategygames
+(B) Get compiling with strategy games +scala
+(B) Start implementing what we can. 
