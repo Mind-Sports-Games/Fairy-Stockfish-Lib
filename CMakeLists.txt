@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # TODO: long term we may want to enable NNUE, but for today, it's unimportant.
-add_definitions(-DNNUE_EMBEDDING_OFF)
+add_definitions(-DNNUE_EMBEDDING_OFF -DLARGEBOARDS -DPRECOMPUTED_MAGICS)
 
 
 set(SOURCE_FILES 
