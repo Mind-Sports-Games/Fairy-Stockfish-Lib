@@ -17,13 +17,23 @@
 #include "variant.h"
 #include "apiutil.h"
 
+#include <vector>
+#include <map>
 
 namespace fairystockfish {
     using Value = Stockfish::Value;
     using Notation = Stockfish::Notation;
     using FenValidation = Stockfish::FEN::FenValidation;
 
+    struct PieceInfo {
+      std::string name = "";
+      std::string betza = "";
+    };
+
     void init ();
+
+    std::vector<std::string> availableVariants();
+    std::map<std::string, PieceInfo> availablePieces();
 }
 
 #endif // FAIRYSTOCKFISH_H
