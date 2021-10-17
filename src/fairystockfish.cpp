@@ -38,29 +38,32 @@ void fairystockfish::init() {
     SF::Search::init();
     SF::Threads.set(SF::Options["Threads"]);
     SF::Search::clear(); // After threads are up
+}
 
+void fairystockfish::info() {
     // Now print out some information
     using namespace tabulate;
     Table variantTable;
     std::cout << "[Fairy-Stockfish-Lib] Available Variants" << std::endl;
-    variantTable.add_row({"Variant Name"});
+    variantTable.add_row({"Variant Name", "Initial FEN"});
     for (auto const & name : availableVariants()) {
-        variantTable.add_row({name});
+        variantTable.add_row({name, initialFen(name)});
     }
     std::cout << variantTable << std::endl;
 
     Table pieceTable;
     std::cout << "[Fairy-Stockfish-Lib] Available Pieces" << std::endl;
-    pieceTable.add_row({"ID", "Name", "Betza"});
     for (auto const &[name, info] : availablePieces()) {
-        pieceTable.add_row({std::to_string(info.id()), info.name(), info.betza()});
+        std::cout << "val " << info.name() << " = " << info.id() << std::endl;
     }
-    std::cout << pieceTable << std::endl;
-
 }
 
 std::vector<std::string> fairystockfish::availableVariants() {
     return SF::variants.get_keys();
+}
+
+std::string fairystockfish::initialFen(std::string variantName) {
+    return SF::variants[variantName]->startFen;
 }
 
 std::map<std::string, fairystockfish::PieceInfo> fairystockfish::availablePieces() {

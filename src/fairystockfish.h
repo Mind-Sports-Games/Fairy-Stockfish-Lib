@@ -39,9 +39,15 @@ namespace fairystockfish {
             std::string betza() const;
     };
 
-    void init ();
+    void init();
+    void info();
 
     std::vector<std::string> availableVariants();
+    // info about variants
+    // Note that this is unsafe and does not check
+    // to ensure the variant name exists.
+    std::string initialFen(std::string variantName);
+
     std::map<std::string, PieceInfo> availablePieces();
 }
 
