@@ -26,8 +26,17 @@ namespace fairystockfish {
     using FenValidation = Stockfish::FEN::FenValidation;
 
     struct PieceInfo {
-      std::string name = "";
-      std::string betza = "";
+        private:
+            Stockfish::PieceType pieceType;
+
+        public:
+            PieceInfo();
+            PieceInfo(int pt);
+
+            int id() const;
+
+            std::string name() const;
+            std::string betza() const;
     };
 
     void init ();
