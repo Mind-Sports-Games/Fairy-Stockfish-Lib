@@ -43,8 +43,6 @@ namespace fairystockfish {
     extern const int VALUE_DRAW;
     extern const int VALUE_MATE;
 
-    Stockfish::Notation fromOurNotation(Notation n);
-
     struct PieceInfo {
         private:
             Stockfish::PieceType pieceType;
