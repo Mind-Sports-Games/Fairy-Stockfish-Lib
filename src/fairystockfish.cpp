@@ -87,6 +87,21 @@ int fairystockfish::PieceInfo::id() const {
     return static_cast<int>(pieceType);
 }
 
+
+fairystockfish::Piece::Piece(int pt, int color)
+    : _pieceInfo{pt}
+    , _color{static_cast<SF::Color>(color)}
+{
+}
+
+fairystockfish::PieceInfo fairystockfish::Piece::pieceInfo() const {
+    return _pieceInfo;
+}
+
+int fairystockfish::Piece::color() const {
+    return static_cast<int>(_color);
+}
+
 void fairystockfish::init() {
     if (_fairystockfish_is_initialized) {
         return;
@@ -307,4 +322,48 @@ bool fairystockfish::validateFEN(
         SF::variants.find(variantName)->second,
         isChess960
     );
+}
+
+std::map<std::string, fairystockfish::Piece>
+fairystockfish::piecesOnBoard(
+    std::string variantName,
+    std::string fen,
+    bool isChess960
+) {
+    std::map<std::string, Piece> retVal;
+    PositionAndStates posAndStates(variantName, fen, {}, isChess960);
+
+    for(SF::Square s = SF::Square::SQ_A1; s <= SF::Square::SQ_L10; ++s) {
+        SF::Piece p = posAndStates.pos->piece_on(s);
+        if (p == SF::Piece::NO_PIECE) continue;
+        SF::PieceType pt = type_of(p);
+        SF::Color c = color_of(p);
+
+        std::string uciSquare = SF::UCI::square(
+            *posAndStates.pos,
+            s
+        );
+        retVal.insert({uciSquare, fairystockfish::Piece(pt, c)});
+    }
+    return retVal;
+}
+
+std::vector<fairystockfish::Piece> fairystockfish::piecesInHand(
+    std::string variantName,
+    std::string fen,
+    bool isChess960
+) {
+    std::vector<Piece> retVal;
+    PositionAndStates posAndStates(variantName, fen, {}, isChess960);
+    for (int _c = static_cast<int>(SF::Color::WHITE);
+            _c <= static_cast<int>(SF::Color::BLACK); ++_c) {
+        SF::Color c = static_cast<SF::Color>(_c);
+        for (auto const &[id, info] : SF::pieceMap) {
+            auto numInHand = posAndStates.pos->count_in_hand(c, id);
+            for(size_t i = 0; i < numInHand; ++i) {
+                retVal.push_back(Piece(id, c));
+            }
+        }
+    }
+    return retVal;
 }

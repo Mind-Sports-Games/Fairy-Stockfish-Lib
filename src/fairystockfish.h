@@ -57,6 +57,25 @@ namespace fairystockfish {
             std::string betza() const;
     };
 
+    struct Piece {
+        private:
+            PieceInfo _pieceInfo;
+            Stockfish::Color _color;
+
+        public:
+            Piece();
+            Piece(int pt, int color);
+
+            PieceInfo pieceInfo() const;
+            int color() const;
+            bool isWhite() const {
+                return _color == Stockfish::Color::WHITE;
+            }
+            bool isBlack() const {
+                return _color == Stockfish::Color::WHITE;
+            }
+    };
+
     extern bool _fairystockfish_is_initialized;
     ///------------------------------------------------------------------------------
     /// Initialize the fairystockfish library.
@@ -307,6 +326,39 @@ namespace fairystockfish {
         std::string fen,
         bool isChess960=false
     );
+
+    ///------------------------------------------------------------------------------
+    /// Returns a piece map for a given position and variant.
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return The map from UCI square notation to piece id integers.
+    ///------------------------------------------------------------------------------
+    std::map<std::string, Piece> piecesOnBoard(
+        std::string variantName,
+        std::string fen,
+        bool isChess960=false
+    );
+
+    ///------------------------------------------------------------------------------
+    /// Returns pieces in hand. It returns a single vector where pieces can be of
+    /// either color. So it's up to the caller to filter them
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return A vectors of pieces that are "in hand"
+    ///------------------------------------------------------------------------------
+    std::vector<Piece> piecesInHand(
+        std::string variantName,
+        std::string fen,
+        bool isChess960=false
+    );
+
+
 }
 
 #endif // FAIRYSTOCKFISH_H
