@@ -238,6 +238,8 @@ namespace fairystockfish {
 
     ///------------------------------------------------------------------------------
     /// Gets result from a given FEN, considering variant end, checkmate and stalemate
+    /// Note that this function will assert there are no legal moves. So only call it
+    /// when legalMoves are zero
     ///
     /// @param variantName The variant for the fen
     /// @param fen The FEN of the current possition
@@ -255,7 +257,8 @@ namespace fairystockfish {
     );
 
     ///------------------------------------------------------------------------------
-    /// Figures out if variant rules immediately end the game
+    /// Figures out if variant rules immediately end the game.
+    /// Note that this does not mean checkmate, checkmates are somewhere else.
     ///
     /// @param variantName The variant for the fen
     /// @param fen The FEN of the current possition
