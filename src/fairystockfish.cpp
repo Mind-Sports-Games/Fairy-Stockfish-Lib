@@ -324,7 +324,7 @@ bool fairystockfish::validateFEN(
     bool isChess960
 ) {
 
-    return SF::FEN::validate_fen(
+    return FenValidation::FEN_OK == SF::FEN::validate_fen(
         fen,
         SF::variants.find(variantName)->second,
         isChess960
