@@ -3,12 +3,14 @@
 #include <iostream>
 #include <climits>
 #include <sstream>
+#include <mutex>
 
 #include "tabulate.hpp"
 
 namespace SF = Stockfish;
 
-bool fairystockfish::_fairystockfish_is_initialized;
+static bool _fairystockfish_is_initialized = false;
+static std::mutex _canInitialize;
 const int fairystockfish::VALUE_ZERO = 0;
 const int fairystockfish::VALUE_DRAW = 0;
 const int fairystockfish::VALUE_MATE = 32000;
@@ -32,9 +34,7 @@ struct PositionAndStates {
         : pos{std::make_unique<SF::Position>()}
         , states{SF::StateListPtr(new std::deque<SF::StateInfo>(1))}
     {
-        // Initialize the variant.
         const SF::Variant* v = SF::variants.find(std::string(variant))->second;
-        SF::UCI::init_variant(v);
 
         // Figure out starting fen.
         if (fen == "startpos") fen = v->startFen;
@@ -103,6 +103,7 @@ int fairystockfish::Piece::color() const {
 }
 
 void fairystockfish::init() {
+    std::lock_guard<std::mutex> guard(_canInitialize);
     if (_fairystockfish_is_initialized) {
         return;
     }
@@ -119,6 +120,12 @@ void fairystockfish::init() {
     SF::Search::init();
     SF::Threads.set(SF::Options["Threads"]);
     SF::Search::clear(); // After threads are up
+
+    // Initialize all variants.
+    for (const auto &[name, variant] : SF::variants) {
+        // Initialize the variant.
+        SF::UCI::init_variant(variant);
+    }
 }
 
 // TODO: make it so that the version number comes from compile time settings.

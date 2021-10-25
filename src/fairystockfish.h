@@ -76,7 +76,6 @@ namespace fairystockfish {
             }
     };
 
-    extern bool _fairystockfish_is_initialized;
     ///------------------------------------------------------------------------------
     /// Initialize the fairystockfish library.
     ///------------------------------------------------------------------------------
