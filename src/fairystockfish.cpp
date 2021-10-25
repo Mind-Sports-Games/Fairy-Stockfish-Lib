@@ -256,11 +256,11 @@ bool fairystockfish::givesCheck(
     return posAndStates.pos->checkers() ? true : false;
 }
 
-int gameResult(
+int fairystockfish::gameResult(
     std::string variantName,
     std::string fen,
     std::vector<std::string> uciMoves,
-    bool isChess960=false
+    bool isChess960
 ) {
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     assert(!SF::MoveList<SF::LEGAL>(*posAndStates.pos).size());
