@@ -339,18 +339,23 @@ fairystockfish::piecesOnBoard(
 ) {
     std::map<std::string, Piece> retVal;
     PositionAndStates posAndStates(variantName, fen, {}, isChess960);
+    const SF::Variant *variant = SF::variants[variantName];
 
-    for(SF::Square s = SF::Square::SQ_A1; s <= SF::Square::SQ_L10; ++s) {
-        SF::Piece p = posAndStates.pos->piece_on(s);
-        if (p == SF::Piece::NO_PIECE) continue;
-        SF::PieceType pt = type_of(p);
-        SF::Color c = color_of(p);
 
-        std::string uciSquare = SF::UCI::square(
-            *posAndStates.pos,
-            s
-        );
-        retVal.insert({uciSquare, fairystockfish::Piece(pt, c)});
+    for(SF::File f = SF::File::FILE_A; f <= variant->maxFile; ++f) {
+        for(SF::Rank r = SF::Rank::RANK_1; r <= variant->maxRank; ++r) {
+            SF::Square s = make_square(f, r);
+            SF::Piece p = posAndStates.pos->piece_on(s);
+            if (p == SF::Piece::NO_PIECE) continue;
+            SF::PieceType pt = type_of(p);
+            SF::Color c = color_of(p);
+
+            std::string uciSquare = SF::UCI::square(
+                *posAndStates.pos,
+                s
+            );
+            retVal.insert({uciSquare, fairystockfish::Piece(pt, c)});
+        }
     }
     return retVal;
 }
