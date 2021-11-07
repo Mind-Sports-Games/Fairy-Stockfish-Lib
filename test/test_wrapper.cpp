@@ -139,3 +139,9 @@ TEST_CASE("Shogi Fools mate") {
     CHECK(legalMoves.size() == 0);
 }
 
+
+TEST_CASE("Chess Check valid moves") {
+    std::string checkFEN = "rnbqkbnr/pppp1ppp/8/4p3/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq - 1 2";
+    std::vector<std::string> moves = {"d8h4"};
+    CHECK(fairystockfish::givesCheck("chess", checkFEN, moves));
+}
