@@ -3,17 +3,19 @@
 cmake_minimum_required(VERSION 3.10)
 project(fairystockfish)
 
+# https://cliutils.gitlab.io/modern-cmake/chapters/testing.html
+# If we're the target project, then enable testing with an option
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
 # https://cmake.org/cmake/help/latest/prop_tgt/CXX_STANDARD.html
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# TODO: long term we may want to enable NNUE, but for today, it's unimportant.
-add_definitions(-DNNUE_EMBEDDING_OFF -DLARGEBOARDS -DPRECOMPUTED_MAGICS)
 
-
-set(SOURCE_FILES 
+set(FSF_SOURCE_FILES
     vendor/Fairy-Stockfish/src/apiutil.h
     vendor/Fairy-Stockfish/src/benchmark.cpp
     vendor/Fairy-Stockfish/src/bitbase.cpp
@@ -34,19 +36,19 @@ set(SOURCE_FILES
     vendor/Fairy-Stockfish/src/movegen.h
     vendor/Fairy-Stockfish/src/movepick.cpp
     vendor/Fairy-Stockfish/src/movepick.h
-    #vendor/Fairy-Stockfish/src/nnue/evaluate_nnue.cpp
-    #vendor/Fairy-Stockfish/src/nnue/evaluate_nnue.h
-    #vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2.cpp
-    #vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2.h
-    #vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2_variants.cpp
-    #vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2_variants.h
-    #vendor/Fairy-Stockfish/src/nnue/layers/affine_transform.h
-    #vendor/Fairy-Stockfish/src/nnue/layers/clipped_relu.h
-    #vendor/Fairy-Stockfish/src/nnue/layers/input_slice.h
-    #vendor/Fairy-Stockfish/src/nnue/nnue_accumulator.h
-    #vendor/Fairy-Stockfish/src/nnue/nnue_architecture.h
-    #vendor/Fairy-Stockfish/src/nnue/nnue_common.h
-    #vendor/Fairy-Stockfish/src/nnue/nnue_feature_transformer.h
+    vendor/Fairy-Stockfish/src/nnue/evaluate_nnue.cpp
+    vendor/Fairy-Stockfish/src/nnue/evaluate_nnue.h
+    vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2.cpp
+    vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2.h
+    vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2_variants.cpp
+    vendor/Fairy-Stockfish/src/nnue/features/half_ka_v2_variants.h
+    vendor/Fairy-Stockfish/src/nnue/layers/affine_transform.h
+    vendor/Fairy-Stockfish/src/nnue/layers/clipped_relu.h
+    vendor/Fairy-Stockfish/src/nnue/layers/input_slice.h
+    vendor/Fairy-Stockfish/src/nnue/nnue_accumulator.h
+    vendor/Fairy-Stockfish/src/nnue/nnue_architecture.h
+    vendor/Fairy-Stockfish/src/nnue/nnue_common.h
+    vendor/Fairy-Stockfish/src/nnue/nnue_feature_transformer.h
     vendor/Fairy-Stockfish/src/parser.cpp
     vendor/Fairy-Stockfish/src/parser.h
     vendor/Fairy-Stockfish/src/partner.cpp
@@ -80,8 +82,26 @@ set(SOURCE_FILES
     vendor/Fairy-Stockfish/src/variant.h
     vendor/Fairy-Stockfish/src/xboard.cpp
     vendor/Fairy-Stockfish/src/xboard.h
+)
+
+
+set(SOURCE_FILES 
     src/fairystockfish.h
     src/fairystockfish.cpp
 )
-add_library(fairystockfish SHARED ${SOURCE_FILES})
-target_include_directories(fairystockfish PRIVATE vendor/Fairy-Stockfish/src)
+add_library(fairystockfish SHARED ${FSF_SOURCE_FILES} ${SOURCE_FILES})
+target_include_directories(fairystockfish PRIVATE
+    vendor/Fairy-Stockfish/src
+    vendor/doctest
+)
+target_compile_definitions(fairystockfish PRIVATE
+    # TODO: long term we may want to enable NNUE, but for today, it's unimportant.
+    NNUE_EMBEDDING_OFF
+    LARGEBOARDS
+    PRECOMPUTED_MAGICS
+)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(test)
+endif()
+
