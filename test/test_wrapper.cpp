@@ -232,3 +232,30 @@ TEST_CASE("Chess autodraw") {
         moves
     ) == Stockfish::VALUE_DRAW);*/
 }
+
+
+TEST_CASE("King of the hill variant win") {
+    std::vector<std::string> moves{"e2e4", "a7a6", "e1e2", "a6a5", "e2e3", "a5a4", "e3d4"};
+    std::string initialFen = fairystockfish::initialFen("kingofthehill");
+    CHECK(
+        fairystockfish::gameResult("kingofthehill", initialFen, moves)
+        == -Stockfish::VALUE_MATE
+    );
+}
+
+TEST_CASE("Racing Kings Draw") {
+    std::vector<std::string> moves{"h2h3", "a2a3", "h3h4", "a3a4", "h4h5", "a4a5", "h5h6", "a5a6", "h6g7", "a6b7", "g7g8", "b7b8"};
+    std::string initialFen = fairystockfish::initialFen("racingkings");
+    CHECK(
+        fairystockfish::gameResult("racingkings", initialFen, moves)
+        == Stockfish::VALUE_DRAW
+    );
+}
+
+
+TEST_CASE("Available Variants") {
+    auto variants = fairystockfish::availableVariants();
+    CHECK(std::find(variants.begin(), variants.end(), "shogi") != variants.end());
+    CHECK(std::find(variants.begin(), variants.end(), "xiangqi") != variants.end());
+    CHECK(std::find(variants.begin(), variants.end(), "my little pony") == variants.end());
+}
