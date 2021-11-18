@@ -61,13 +61,15 @@ namespace fairystockfish {
         private:
             PieceInfo _pieceInfo;
             Stockfish::Color _color;
+            bool _promoted;
 
         public:
             Piece();
-            Piece(int pt, int color);
+            Piece(int pt, int color, bool promoted=false);
 
             PieceInfo pieceInfo() const;
             int color() const;
+            bool promoted() const;
             bool isWhite() const {
                 return _color == Stockfish::Color::WHITE;
             }

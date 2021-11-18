@@ -259,3 +259,31 @@ TEST_CASE("Available Variants") {
     CHECK(std::find(variants.begin(), variants.end(), "xiangqi") != variants.end());
     CHECK(std::find(variants.begin(), variants.end(), "my little pony") == variants.end());
 }
+
+TEST_CASE("Promoted Pieces") {
+    auto variant = "shogi";
+    auto fen = "lnsgkgsnl/1r5b1/pppppppp1/P8/9/8p/1PPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1";
+    std::vector<std::string> moves{"a6a7+"};
+    std::string newFen = fairystockfish::getFEN(variant, fen, moves);
+    std::map<std::string, fairystockfish::Piece> pieces
+        = fairystockfish::piecesOnBoard(variant, newFen);
+
+    auto p = pieces.find("a7");
+    if (p == pieces.end()) {
+        CHECK(false);
+    } else {
+        CHECK(p->second.promoted());
+        CHECK(p->second.pieceInfo().name() == "shogiPawn");
+    }
+/*
+    for (const auto &[square, piece] : pieces) {
+        std::cout
+            << "square: " << square
+            << " piece.color: " << piece.color()
+            << " piece.pieceInfo(): " << piece.pieceInfo().name()
+            << " piece.promoted(): " << std::boolalpha << piece.promoted()
+            << std::endl;
+    }
+*/
+
+}

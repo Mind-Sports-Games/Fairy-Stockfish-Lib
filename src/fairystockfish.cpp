@@ -88,9 +88,10 @@ int fairystockfish::PieceInfo::id() const {
 }
 
 
-fairystockfish::Piece::Piece(int pt, int color)
+fairystockfish::Piece::Piece(int pt, int color, bool promoted)
     : _pieceInfo{pt}
     , _color{static_cast<SF::Color>(color)}
+    , _promoted{promoted}
 {
 }
 
@@ -100,6 +101,10 @@ fairystockfish::PieceInfo fairystockfish::Piece::pieceInfo() const {
 
 int fairystockfish::Piece::color() const {
     return static_cast<int>(_color);
+}
+
+bool fairystockfish::Piece::promoted() const {
+    return _promoted;
 }
 
 void fairystockfish::init() {
@@ -345,7 +350,13 @@ fairystockfish::piecesOnBoard(
     for(SF::File f = SF::File::FILE_A; f <= variant->maxFile; ++f) {
         for(SF::Rank r = SF::Rank::RANK_1; r <= variant->maxRank; ++r) {
             SF::Square s = make_square(f, r);
+            SF::Piece unpromotedPiece = posAndStates.pos->unpromoted_piece_on(s);
             SF::Piece p = posAndStates.pos->piece_on(s);
+            bool promoted = false;
+            if (unpromotedPiece) {
+                p = unpromotedPiece;
+                promoted = true;
+            }
             if (p == SF::Piece::NO_PIECE) continue;
             SF::PieceType pt = type_of(p);
             SF::Color c = color_of(p);
@@ -354,7 +365,7 @@ fairystockfish::piecesOnBoard(
                 *posAndStates.pos,
                 s
             );
-            retVal.insert({uciSquare, fairystockfish::Piece(pt, c)});
+            retVal.insert({uciSquare, fairystockfish::Piece(pt, c, promoted)});
         }
     }
     return retVal;
