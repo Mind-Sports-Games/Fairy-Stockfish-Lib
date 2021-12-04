@@ -287,3 +287,21 @@ TEST_CASE("Promoted Pieces") {
 */
 
 }
+
+// TODO: this test is failing, but we're just trying to figure it out anyways.
+TEST_CASE("Promoted Pieces") {
+    auto variant = "shogi";
+    std::string initialFEN = fairystockfish::initialFen(variant);
+    //std::vector<std::string> moves{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"};
+    std::vector<std::string> moves{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"};
+
+    std::cout << "hasGameCycle(0) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl;
+    std::cout << "hasGameCycle(16) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 16) << std::endl;
+    std::cout << "hasRepeated() -> " << std::boolalpha << fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl;
+    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
+    CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
+    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 0));
+    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
+    CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
+
+}
