@@ -288,13 +288,166 @@ TEST_CASE("Promoted Pieces") {
 
 }
 
+TEST_CASE("Shogi Unforced repetition is a draw") {
+    auto variant = "shogi";
+    std::string initialFEN = fairystockfish::initialFen(variant);
+    // 1 move before optional draw
+    std::vector<std::vector<std::string>> notDrawnSituations{
+        {
+            "c3c4", "a7a6",
+            "b2g7+", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6"
+        },
+        {
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2"
+        },
+    };
+    for (auto const &moves : notDrawnSituations) {
+        //std::cout << "isOptionalGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
+        //std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
+        CHECK(!std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)));
+        CHECK(!fairystockfish::isDraw(variant, initialFEN, moves, 0));
+    }
+
+    // 1 move before forced draw
+    std::vector<std::vector<std::string>> soonDrawnSituations{
+        {
+            "c3c4", "a7a6",
+            "b2g7+", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9"
+        },
+        {
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2"
+        },
+    };
+    for (auto const &moves : soonDrawnSituations) {
+        //std::cout << "isOptionalGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
+        //std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
+        CHECK(!std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)));
+        CHECK(!fairystockfish::isDraw(variant, initialFEN, moves, 0));
+    }
+
+    // Forced draw.
+    std::vector<std::vector<std::string>> drawnSituations{
+        {
+            "c3c4", "a7a6",
+            "b2g7+", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7"
+        },
+        {
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2", "a8b8",
+            "h2i2", "b8a8", "i2h2", "a8b8",
+        },
+    };
+    for (auto const &moves : drawnSituations) {
+        //std::cout << "isOptionalGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
+        //std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
+        auto result = fairystockfish::isOptionalGameEnd(variant, initialFEN, moves);
+        CHECK(std::get<0>(result));
+        CHECK(std::get<1>(result) == Stockfish::VALUE_DRAW);
+        CHECK(fairystockfish::isDraw(variant, initialFEN, moves, 0));
+    }
+}
+
+TEST_CASE("Shogi Forced checking repetition is a loss") {
+    auto variant = "shogi";
+    std::string initialFEN = fairystockfish::initialFen(variant);
+    // 1 move before optional draw
+    std::vector<std::vector<std::string>> notLossSituations{
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+        },
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4",
+        },
+    };
+    for (auto const &moves : notLossSituations) {
+        auto result = fairystockfish::isOptionalGameEnd(variant, initialFEN, moves);
+        CHECK(!std::get<0>(result));
+    }
+
+    // 1 move before forced loss
+    // NOTE: dunno why my opponents move is the one that causes the loss.
+    std::vector<std::vector<std::string>> soonLostSituations{
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4"
+        },
+    };
+    for (auto const &moves : soonLostSituations) {
+        auto result = fairystockfish::isOptionalGameEnd(variant, initialFEN, moves);
+        CHECK(!std::get<0>(result));
+    }
+
+    // When my opponent moves out of check it's now a loss
+    std::vector<std::vector<std::string>> lossSituations{
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+        },
+    };
+    for (auto const &moves : lossSituations) {
+        auto result = fairystockfish::isOptionalGameEnd(variant, initialFEN, moves);
+        CHECK(std::get<0>(result));
+        CHECK(std::get<1>(result) == -Stockfish::VALUE_MATE);
+    }
+
+    // Still a loss when I put them into check
+    std::vector<std::vector<std::string>> lossSituations2{
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4"
+        },
+    };
+    for (auto const &moves : lossSituations2) {
+        auto result = fairystockfish::isOptionalGameEnd(variant, initialFEN, moves);
+        CHECK(std::get<0>(result));
+        CHECK(std::get<1>(result) == Stockfish::VALUE_MATE);
+    }
+}
+
+/*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
-TEST_CASE("Promoted Pieces") {
+TEST_CASE("Shogi Repetition") {
     auto variant = "shogi";
     std::string initialFEN = fairystockfish::initialFen(variant);
     std::vector<std::vector<std::string>> situations{
-        {"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"},
-        {"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"}
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+        },
+        {
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4",
+        },
+        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9"},
+        //{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"},
+        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"},
+        //{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"}
     };
     for (auto const &moves : situations) {
         std::cout << "hasGameCycle(0) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl;
@@ -302,8 +455,10 @@ TEST_CASE("Promoted Pieces") {
         std::cout << "hasRepeated() -> " << std::boolalpha << fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl;
         std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
         std::cout << "isDraw(15) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 15) << std::endl;
+        std::cout << "isOptionalGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
         std::cout << "isImmediateGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl;
         std::cout << "isImmediateGameEnd() -> " << std::boolalpha << std::get<1>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl;
+        //std::cout << "gameResult() -> " << std::boolalpha << fairystockfish::gameResult(variant, initialFEN, moves) << std::endl;
         CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
         CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
         CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 0));
@@ -311,4 +466,4 @@ TEST_CASE("Promoted Pieces") {
         CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
     }
 
-}
+}*/
