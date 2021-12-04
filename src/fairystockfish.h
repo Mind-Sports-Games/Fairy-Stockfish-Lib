@@ -317,6 +317,42 @@ namespace fairystockfish {
     );
 
     ///------------------------------------------------------------------------------
+    /// Tests if the position has a mvoe which draws by repetition,or an earlier
+    /// position has a move that directly reaches the current position.
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param ply The number of ply to search (Don't really know?)
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return A vectors of pieces that are "in hand"
+    ///------------------------------------------------------------------------------
+    bool hasGameCycle(
+        std::string variantName,
+        std::string fen,
+        std::vector<std::string> uciMoves,
+        int ply,
+        bool isChess960=false
+    );
+
+    ///------------------------------------------------------------------------------
+    /// Tests whether there has been at least one repetition of positions since the
+    /// last capture or pawn move.
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return A vectors of pieces that are "in hand"
+    ///------------------------------------------------------------------------------
+    bool hasRepeated(
+        std::string variantName,
+        std::string fen,
+        std::vector<std::string> uciMoves,
+        bool isChess960=false
+    );
+
+    ///------------------------------------------------------------------------------
     /// Validates an input FEN.
     ///
     /// @param variantName The variant for the fen

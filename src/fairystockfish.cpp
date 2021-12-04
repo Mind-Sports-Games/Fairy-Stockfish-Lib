@@ -323,6 +323,28 @@ std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(
     return std::make_tuple(wInsufficient, bInsufficient);
 }
 
+
+bool fairystockfish::hasGameCycle(
+    std::string variantName,
+    std::string fen,
+    std::vector<std::string> uciMoves,
+    int ply,
+    bool isChess960
+) {
+    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
+    return posAndStates.pos->has_game_cycle(ply);
+}
+
+bool fairystockfish::hasRepeated(
+    std::string variantName,
+    std::string fen,
+    std::vector<std::string> uciMoves,
+    bool isChess960
+) {
+    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
+    return posAndStates.pos->has_repeated();
+}
+
 bool fairystockfish::validateFEN(
     std::string variantName,
     std::string fen,
