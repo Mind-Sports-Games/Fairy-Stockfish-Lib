@@ -413,6 +413,13 @@ TEST_CASE("Shogi Forced checking repetition is a loss") {
     // Still a loss when I put them into check
     std::vector<std::vector<std::string>> lossSituations2{
         {
+            "c3c4", "e7e6",
+            "b2g7+", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7", "e9d8", "g7f6", "d8e9",
+            "f6g7"
+        },
+        {
             "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
             "f4e4", "e6f6", "e4f4", "f6e6",
             "f4e4", "e6f6", "e4f4", "f6e6",
