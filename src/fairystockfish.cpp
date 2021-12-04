@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include "tabulate.hpp"
+#include "types.h"
 
 namespace SF = Stockfish;
 
@@ -287,7 +288,7 @@ std::tuple<bool, int> fairystockfish::isImmediateGameEnd(
 ) {
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
 
-    SF::Value result;
+    SF::Value result = Stockfish::VALUE_ZERO;
     bool gameEnd = posAndStates.pos->is_immediate_game_end(result);
     return std::make_tuple(gameEnd, int(result));
 }
@@ -308,6 +309,17 @@ std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
 
     gameEnd = posAndStates.pos->is_optional_game_end(result, 0, countStarted);
     return std::make_tuple(gameEnd, int(result));
+}
+
+bool fairystockfish::isDraw(
+    std::string variantName,
+    std::string fen,
+    std::vector<std::string> uciMoves,
+    int ply,
+    bool isChess960
+) {
+    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
+    return posAndStates.pos->is_draw(ply);
 }
 
 std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(

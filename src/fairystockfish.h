@@ -299,6 +299,26 @@ namespace fairystockfish {
     );
 
     ///------------------------------------------------------------------------------
+    /// Returns whether it's a draw or not.
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param uciMoves A vector of moves in UCI notation
+    /// @param ply the number of ply to consider.
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return Returns a boolean indicating if the game is an immediate end as well
+    ///         as the integer result value.
+    ///------------------------------------------------------------------------------
+    bool isDraw(
+        std::string variantName,
+        std::string fen,
+        std::vector<std::string> uciMoves,
+        int ply,
+        bool isChess960=false
+    );
+
+    ///------------------------------------------------------------------------------
     /// Checks for insufficient material on behalf of both players.
     ///
     /// @param variantName The variant for the fen

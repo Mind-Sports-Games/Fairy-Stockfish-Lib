@@ -292,16 +292,23 @@ TEST_CASE("Promoted Pieces") {
 TEST_CASE("Promoted Pieces") {
     auto variant = "shogi";
     std::string initialFEN = fairystockfish::initialFen(variant);
-    //std::vector<std::string> moves{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"};
-    std::vector<std::string> moves{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"};
-
-    std::cout << "hasGameCycle(0) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl;
-    std::cout << "hasGameCycle(16) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 16) << std::endl;
-    std::cout << "hasRepeated() -> " << std::boolalpha << fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl;
-    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
-    CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
-    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 0));
-    CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
-    CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
+    std::vector<std::vector<std::string>> situations{
+        {"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"},
+        {"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"}
+    };
+    for (auto const &moves : situations) {
+        std::cout << "hasGameCycle(0) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl;
+        std::cout << "hasGameCycle(15) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves, 15) << std::endl;
+        std::cout << "hasRepeated() -> " << std::boolalpha << fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl;
+        std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
+        std::cout << "isDraw(15) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 15) << std::endl;
+        std::cout << "isImmediateGameEnd() -> " << std::boolalpha << std::get<0>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl;
+        std::cout << "isImmediateGameEnd() -> " << std::boolalpha << std::get<1>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl;
+        CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
+        CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
+        CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 0));
+        CHECK(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
+        CHECK(fairystockfish::hasRepeated(variant, initialFEN, moves));
+    }
 
 }
