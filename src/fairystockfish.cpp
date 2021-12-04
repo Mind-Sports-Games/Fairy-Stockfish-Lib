@@ -306,8 +306,6 @@ std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
 
     SF::Value result;
     bool gameEnd = posAndStates.pos->is_optional_game_end(result, 0, countStarted);
-
-    gameEnd = posAndStates.pos->is_optional_game_end(result, 0, countStarted);
     return std::make_tuple(gameEnd, int(result));
 }
 
