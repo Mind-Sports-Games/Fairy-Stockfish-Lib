@@ -1,5 +1,7 @@
 #include "fairystockfish.h"
 
+#include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <climits>
 #include <sstream>
@@ -15,6 +17,41 @@ static std::mutex _canInitialize;
 const int fairystockfish::VALUE_ZERO = 0;
 const int fairystockfish::VALUE_DRAW = 0;
 const int fairystockfish::VALUE_MATE = 32000;
+
+// convert current time to milliseconds since unix epoch
+template <typename T>
+static int to_ns(const std::chrono::time_point<T>& tp)
+{
+    using namespace std::chrono;
+
+    auto dur = tp.time_since_epoch();
+    return static_cast<int>(duration_cast<nanoseconds>(dur).count());
+}
+
+int now() { return to_ns(std::chrono::system_clock::now()); }
+void log(std::string name, int ns) {
+    std::cout
+        << std::setprecision(6)
+        << std::fixed
+        << ((double)ns)*1e-6
+        << "\t"
+        << name
+        << " (ms)"
+        << std::endl;
+}
+
+class Timer {
+    private:
+        std::string name;
+        int start;
+    public:
+        Timer(std::string n)
+            : name(n), start(now())
+        {}
+        ~Timer() {
+            log(name, now() - start);
+        }
+};
 
 
 //------------------------------------------------------------------------------
@@ -35,26 +72,34 @@ struct PositionAndStates {
         : pos{std::make_unique<SF::Position>()}
         , states{SF::StateListPtr(new std::deque<SF::StateInfo>(1))}
     {
+        Timer t("PositionAndState");
         const SF::Variant* v = SF::variants.find(std::string(variant))->second;
 
         // Figure out starting fen.
         if (fen == "startpos") fen = v->startFen;
 
         // Setup the position
-        pos->set(v, fen, isChess960, &states->back(), SF::Threads.main());
+        {
+            Timer t("parseFen");
+            pos->set(v, fen, isChess960, &states->back(), SF::Threads.main());
+        }
 
-        // Make the moves in the given position
-        for (auto moveStr : moveList) {
-            SF::Move m = SF::UCI::to_move(*pos, moveStr);
-            if (m == SF::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
-            // do the move
-            states->emplace_back();
-            pos->do_move(m, states->back());
+        {
+            Timer t("makeMoves");
+            // Make the moves in the given position
+            for (auto moveStr : moveList) {
+                SF::Move m = SF::UCI::to_move(*pos, moveStr);
+                if (m == SF::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
+                // do the move
+                states->emplace_back();
+                pos->do_move(m, states->back());
+            }
         }
     }
 };
 
 Stockfish::Notation fromOurNotation(fairystockfish::Notation n) {
+    Timer t("fromOurNotation");
     switch (n) {
         case fairystockfish::NOTATION_DEFAULT: return SF::NOTATION_DEFAULT;
         case fairystockfish::NOTATION_SAN: return SF::NOTATION_SAN;
@@ -109,6 +154,7 @@ bool fairystockfish::Piece::promoted() const {
 }
 
 void fairystockfish::init() {
+    Timer t("init");
     std::lock_guard<std::mutex> guard(_canInitialize);
     if (_fairystockfish_is_initialized) {
         return;
@@ -138,6 +184,7 @@ void fairystockfish::init() {
 std::string fairystockfish::version() { return "v0.0.2"; }
 
 void fairystockfish::info() {
+    Timer t("info");
     // Now print out some information
     using namespace tabulate;
     Table variantTable;
@@ -156,25 +203,30 @@ void fairystockfish::info() {
 }
 
 void fairystockfish::setUCIOption(std::string name, std::string value) {
+    Timer t("setUCIOption");
     if (SF::Options.count(name)) SF::Options[name] = value;
     else throw std::runtime_error("Unrecognized option");
 }
 
 void fairystockfish::loadVariantConfig(std::string config) {
+    Timer t("loadVariantConfig");
     std::stringstream ss(config);
     SF::variants.parse_istream<false>(ss);
     SF::Options["UCI_Variant"].set_combo(SF::variants.get_keys());
 }
 
 std::vector<std::string> fairystockfish::availableVariants() {
+    Timer t("availableVariants");
     return SF::variants.get_keys();
 }
 
 std::string fairystockfish::initialFen(std::string variantName) {
+    Timer t("initialFen");
     return SF::variants[variantName]->startFen;
 }
 
 std::map<std::string, fairystockfish::PieceInfo> fairystockfish::availablePieces() {
+    Timer t("availablePieces");
     std::map<std::string, PieceInfo> retVal;
     for (auto const &[id, info] : SF::pieceMap) {
         retVal[info->name] = PieceInfo(id);
@@ -189,6 +241,7 @@ std::string fairystockfish::getSAN(
     bool isChess960,
     Notation ourNotation
 ) {
+    Timer t("getSAN");
     // Can reuse the method below with a single move in the move list.
     return getSANMoves(variantName, fen, {uciMove}, isChess960, ourNotation)[0];
 }
@@ -200,6 +253,7 @@ std::vector<std::string> fairystockfish::getSANMoves(
     bool isChess960,
     Notation ourNotation
 ) {
+    Timer t("getSANMoves");
     SF::Notation notation = fromOurNotation(ourNotation);
     if (notation == SF::NOTATION_DEFAULT)
         notation = SF::default_notation(SF::variants.find(variantName)->second);
@@ -227,6 +281,7 @@ std::vector<std::string> fairystockfish::getLegalMoves(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("getLegalMoves");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
 
     std::vector<std::string> legalMoves;
@@ -246,6 +301,7 @@ std::string fairystockfish::getFEN(
     bool showPromoted,
     int countStarted
 ) {
+    Timer t("getFEN");
     countStarted = std::min<unsigned int>(countStarted, INT_MAX); // pseudo-unsigned
 
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
@@ -258,6 +314,7 @@ bool fairystockfish::givesCheck(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("givesCheck");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     return posAndStates.pos->checkers() ? true : false;
 }
@@ -268,6 +325,7 @@ int fairystockfish::gameResult(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("gameResult");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     assert(!SF::MoveList<SF::LEGAL>(*posAndStates.pos).size());
     SF::Value result;
@@ -286,6 +344,7 @@ std::tuple<bool, int> fairystockfish::isImmediateGameEnd(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("isImmediateGameEnd");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
 
     SF::Value result = Stockfish::VALUE_ZERO;
@@ -300,6 +359,7 @@ std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
     bool isChess960,
     int countStarted
 ) {
+    Timer t("isOptionalGameEnd");
     countStarted = std::min<unsigned int>(countStarted, INT_MAX); // pseudo-unsigned
 
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
@@ -316,6 +376,7 @@ bool fairystockfish::isDraw(
     int ply,
     bool isChess960
 ) {
+    Timer t("isDraw");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     return posAndStates.pos->is_draw(ply);
 }
@@ -326,6 +387,7 @@ std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("hasInsufficientMaterial");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
 
     bool wInsufficient = SF::has_insufficient_material(SF::WHITE, *posAndStates.pos);
@@ -341,6 +403,7 @@ bool fairystockfish::hasGameCycle(
     int ply,
     bool isChess960
 ) {
+    Timer t("hasGameCycle");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     return posAndStates.pos->has_game_cycle(ply);
 }
@@ -351,6 +414,7 @@ bool fairystockfish::hasRepeated(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
+    Timer t("hasRepeated");
     PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
     return posAndStates.pos->has_repeated();
 }
@@ -360,7 +424,7 @@ bool fairystockfish::validateFEN(
     std::string fen,
     bool isChess960
 ) {
-
+    Timer t("validateFEN");
     return FenValidation::FEN_OK == SF::FEN::validate_fen(
         fen,
         SF::variants.find(variantName)->second,
@@ -374,6 +438,7 @@ fairystockfish::piecesOnBoard(
     std::string fen,
     bool isChess960
 ) {
+    Timer t("piecesOnBoard");
     std::map<std::string, Piece> retVal;
     PositionAndStates posAndStates(variantName, fen, {}, isChess960);
     const SF::Variant *variant = SF::variants[variantName];
@@ -408,6 +473,7 @@ std::vector<fairystockfish::Piece> fairystockfish::piecesInHand(
     std::string fen,
     bool isChess960
 ) {
+    Timer t("piecesInHand");
     std::vector<Piece> retVal;
     PositionAndStates posAndStates(variantName, fen, {}, isChess960);
     for (int _c = static_cast<int>(SF::Color::WHITE);
