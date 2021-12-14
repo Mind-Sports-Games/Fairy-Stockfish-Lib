@@ -475,6 +475,21 @@ namespace fairystockfish {
             }
 
         public:
+            Position(
+                std::string _variant,
+                bool _isChess960=false
+            )
+                : variant(_variant)
+                , isChess960(_isChess960)
+                , position{}
+                , states{Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1))}
+            {
+                const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
+                std::shared_ptr<Stockfish::Position> p =
+                    std::make_shared<Stockfish::Position>();
+                p->set(v, initialFen(variant), isChess960, &states->back(), Stockfish::Threads.main());
+                position = p;
+            }
 
             Position(
                 std::string _variant,
