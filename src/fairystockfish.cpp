@@ -54,7 +54,7 @@ struct PositionAndStates {
     }
 };
 
-Stockfish::Notation fromOurNotation(fairystockfish::Notation n) {
+Stockfish::Notation fairystockfish::fromOurNotation(fairystockfish::Notation n) {
     switch (n) {
         case fairystockfish::NOTATION_DEFAULT: return SF::NOTATION_DEFAULT;
         case fairystockfish::NOTATION_SAN: return SF::NOTATION_SAN;
@@ -135,7 +135,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.2"; }
+std::string fairystockfish::version() { return "v0.0.3"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -200,25 +200,8 @@ std::vector<std::string> fairystockfish::getSANMoves(
     bool isChess960,
     Notation ourNotation
 ) {
-    SF::Notation notation = fromOurNotation(ourNotation);
-    if (notation == SF::NOTATION_DEFAULT)
-        notation = SF::default_notation(SF::variants.find(variantName)->second);
-
-    PositionAndStates posAndStates(variantName, fen, {}, isChess960);
-
-    std::vector<std::string> retVal;
-    for (auto uciMove : uciMoves) {
-
-        SF::Move m = SF::UCI::to_move(*posAndStates.pos, uciMove);
-        if (m == SF::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + uciMove + "'");
-
-        retVal.push_back(SF::SAN::move_to_san(*posAndStates.pos, m, notation));
-
-        posAndStates.states->emplace_back();
-        posAndStates.pos->do_move(m, posAndStates.states->back());
-
-    }
-    return retVal;
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.getSANMoves(uciMoves, ourNotation);
 }
 
 std::vector<std::string> fairystockfish::getLegalMoves(
@@ -227,14 +210,8 @@ std::vector<std::string> fairystockfish::getLegalMoves(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-
-    std::vector<std::string> legalMoves;
-    for (auto const &m : SF::MoveList<SF::LEGAL>(*posAndStates.pos)) {
-        legalMoves.push_back(SF::UCI::move(*posAndStates.pos, m));
-    }
-
-    return legalMoves;
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.getLegalMoves();
 }
 
 std::string fairystockfish::getFEN(
@@ -246,10 +223,8 @@ std::string fairystockfish::getFEN(
     bool showPromoted,
     int countStarted
 ) {
-    countStarted = std::min<unsigned int>(countStarted, INT_MAX); // pseudo-unsigned
-
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    return posAndStates.pos->fen(sFen, showPromoted, countStarted);
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.getFEN();
 }
 
 bool fairystockfish::givesCheck(
@@ -258,8 +233,8 @@ bool fairystockfish::givesCheck(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    return posAndStates.pos->checkers() ? true : false;
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.givesCheck();
 }
 
 int fairystockfish::gameResult(
@@ -268,16 +243,8 @@ int fairystockfish::gameResult(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    assert(!SF::MoveList<SF::LEGAL>(*posAndStates.pos).size());
-    SF::Value result;
-    bool gameEnd = posAndStates.pos->is_immediate_game_end(result);
-    if (!gameEnd)
-        result =
-            posAndStates.pos->checkers()
-            ? posAndStates.pos->checkmate_value()
-            : posAndStates.pos->stalemate_value();
-    return int(result);
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.gameResult();
 }
 
 std::tuple<bool, int> fairystockfish::isImmediateGameEnd(
@@ -286,11 +253,8 @@ std::tuple<bool, int> fairystockfish::isImmediateGameEnd(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-
-    SF::Value result = Stockfish::VALUE_ZERO;
-    bool gameEnd = posAndStates.pos->is_immediate_game_end(result);
-    return std::make_tuple(gameEnd, int(result));
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.isImmediateGameEnd();
 }
 
 std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
@@ -300,13 +264,8 @@ std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
     bool isChess960,
     int countStarted
 ) {
-    countStarted = std::min<unsigned int>(countStarted, INT_MAX); // pseudo-unsigned
-
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-
-    SF::Value result;
-    bool gameEnd = posAndStates.pos->is_optional_game_end(result, 0, countStarted);
-    return std::make_tuple(gameEnd, int(result));
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.isOptionalGameEnd(countStarted);
 }
 
 bool fairystockfish::isDraw(
@@ -316,8 +275,8 @@ bool fairystockfish::isDraw(
     int ply,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    return posAndStates.pos->is_draw(ply);
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.isDraw(ply);
 }
 
 std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(
@@ -326,11 +285,8 @@ std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-
-    bool wInsufficient = SF::has_insufficient_material(SF::WHITE, *posAndStates.pos);
-    bool bInsufficient = SF::has_insufficient_material(SF::BLACK, *posAndStates.pos);
-    return std::make_tuple(wInsufficient, bInsufficient);
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.hasInsufficientMaterial();
 }
 
 
@@ -341,8 +297,8 @@ bool fairystockfish::hasGameCycle(
     int ply,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    return posAndStates.pos->has_game_cycle(ply);
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.hasGameCycle(ply);
 }
 
 bool fairystockfish::hasRepeated(
@@ -351,8 +307,8 @@ bool fairystockfish::hasRepeated(
     std::vector<std::string> uciMoves,
     bool isChess960
 ) {
-    PositionAndStates posAndStates(variantName, fen, uciMoves, isChess960);
-    return posAndStates.pos->has_repeated();
+    Position p(variantName, fen, uciMoves, isChess960);
+    return p.hasRepeated();
 }
 
 bool fairystockfish::validateFEN(
@@ -374,33 +330,8 @@ fairystockfish::piecesOnBoard(
     std::string fen,
     bool isChess960
 ) {
-    std::map<std::string, Piece> retVal;
-    PositionAndStates posAndStates(variantName, fen, {}, isChess960);
-    const SF::Variant *variant = SF::variants[variantName];
-
-
-    for(SF::File f = SF::File::FILE_A; f <= variant->maxFile; ++f) {
-        for(SF::Rank r = SF::Rank::RANK_1; r <= variant->maxRank; ++r) {
-            SF::Square s = make_square(f, r);
-            SF::Piece unpromotedPiece = posAndStates.pos->unpromoted_piece_on(s);
-            SF::Piece p = posAndStates.pos->piece_on(s);
-            bool promoted = false;
-            if (unpromotedPiece) {
-                p = unpromotedPiece;
-                promoted = true;
-            }
-            if (p == SF::Piece::NO_PIECE) continue;
-            SF::PieceType pt = type_of(p);
-            SF::Color c = color_of(p);
-
-            std::string uciSquare = SF::UCI::square(
-                *posAndStates.pos,
-                s
-            );
-            retVal.insert({uciSquare, fairystockfish::Piece(pt, c, promoted)});
-        }
-    }
-    return retVal;
+    Position p(variantName, fen, {}, isChess960);
+    return p.piecesOnBoard();
 }
 
 std::vector<fairystockfish::Piece> fairystockfish::piecesInHand(
@@ -408,17 +339,6 @@ std::vector<fairystockfish::Piece> fairystockfish::piecesInHand(
     std::string fen,
     bool isChess960
 ) {
-    std::vector<Piece> retVal;
-    PositionAndStates posAndStates(variantName, fen, {}, isChess960);
-    for (int _c = static_cast<int>(SF::Color::WHITE);
-            _c <= static_cast<int>(SF::Color::BLACK); ++_c) {
-        SF::Color c = static_cast<SF::Color>(_c);
-        for (auto const &[id, info] : SF::pieceMap) {
-            auto numInHand = posAndStates.pos->count_in_hand(c, id);
-            for(size_t i = 0; i < numInHand; ++i) {
-                retVal.push_back(Piece(id, c));
-            }
-        }
-    }
-    return retVal;
+    Position p(variantName, fen, {}, isChess960);
+    return p.piecesInHand();
 }
