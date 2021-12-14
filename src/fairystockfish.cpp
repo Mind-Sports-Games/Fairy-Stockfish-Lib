@@ -54,20 +54,6 @@ struct PositionAndStates {
     }
 };
 
-Stockfish::Notation fairystockfish::fromOurNotation(fairystockfish::Notation n) {
-    switch (n) {
-        case fairystockfish::NOTATION_DEFAULT: return SF::NOTATION_DEFAULT;
-        case fairystockfish::NOTATION_SAN: return SF::NOTATION_SAN;
-        case fairystockfish::NOTATION_LAN: return SF::NOTATION_LAN;
-        case fairystockfish::NOTATION_SHOGI_HOSKING: return SF::NOTATION_SHOGI_HOSKING;
-        case fairystockfish::NOTATION_SHOGI_HODGES: return SF::NOTATION_SHOGI_HODGES;
-        case fairystockfish::NOTATION_SHOGI_HODGES_NUMBER: return SF::NOTATION_SHOGI_HODGES_NUMBER;
-        case fairystockfish::NOTATION_JANGGI: return SF::NOTATION_JANGGI;
-        case fairystockfish::NOTATION_XIANGQI_WXF: return SF::NOTATION_XIANGQI_WXF;
-    }
-    return SF::NOTATION_DEFAULT;
-}
-
 fairystockfish::PieceInfo::PieceInfo()
     : pieceType{static_cast<SF::PieceType>(0)}
 {}

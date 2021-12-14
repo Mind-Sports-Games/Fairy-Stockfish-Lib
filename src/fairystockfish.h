@@ -43,7 +43,6 @@ namespace fairystockfish {
     extern const int VALUE_ZERO;
     extern const int VALUE_DRAW;
     extern const int VALUE_MATE;
-    Stockfish::Notation fromOurNotation(fairystockfish::Notation n);
 
     struct PieceInfo {
         private:
@@ -447,6 +446,34 @@ namespace fairystockfish {
                 return newPos;
             }
 
+            // This constructor is private
+            Position(
+                std::string _variant,
+                bool _isChess960,
+                std::shared_ptr<const Stockfish::Position> position,
+                Stockfish::StateListPtr _states
+            )
+                : variant(_variant)
+                , isChess960(_isChess960)
+                , position{position}
+                , states{copy(_states)}
+            {
+            }
+
+            Stockfish::Notation fromOurNotation(fairystockfish::Notation n) const {
+                switch (n) {
+                    case fairystockfish::NOTATION_DEFAULT: return Stockfish::NOTATION_DEFAULT;
+                    case fairystockfish::NOTATION_SAN: return Stockfish::NOTATION_SAN;
+                    case fairystockfish::NOTATION_LAN: return Stockfish::NOTATION_LAN;
+                    case fairystockfish::NOTATION_SHOGI_HOSKING: return Stockfish::NOTATION_SHOGI_HOSKING;
+                    case fairystockfish::NOTATION_SHOGI_HODGES: return Stockfish::NOTATION_SHOGI_HODGES;
+                    case fairystockfish::NOTATION_SHOGI_HODGES_NUMBER: return Stockfish::NOTATION_SHOGI_HODGES_NUMBER;
+                    case fairystockfish::NOTATION_JANGGI: return Stockfish::NOTATION_JANGGI;
+                    case fairystockfish::NOTATION_XIANGQI_WXF: return Stockfish::NOTATION_XIANGQI_WXF;
+                }
+                return Stockfish::NOTATION_DEFAULT;
+            }
+
         public:
 
             Position(
@@ -474,19 +501,6 @@ namespace fairystockfish {
                     p->do_move(m, states->back());
                 }
                 position = p;
-            }
-
-            Position(
-                std::string _variant,
-                bool _isChess960,
-                std::shared_ptr<const Stockfish::Position> position,
-                Stockfish::StateListPtr _states
-            )
-                : variant(_variant)
-                , isChess960(_isChess960)
-                , position{position}
-                , states{copy(_states)}
-            {
             }
 
             Position(Position const &p)
@@ -765,7 +779,7 @@ namespace fairystockfish {
                         _c <= static_cast<int>(Stockfish::Color::BLACK); ++_c) {
                     Stockfish::Color c = static_cast<Stockfish::Color>(_c);
                     for (auto const &[id, info] : Stockfish::pieceMap) {
-                        auto numInHand = position->count_in_hand(c, id);
+                        size_t numInHand = size_t(position->count_in_hand(c, id));
                         for(size_t i = 0; i < numInHand; ++i) {
                             retVal.push_back(Piece(id, c));
                         }
