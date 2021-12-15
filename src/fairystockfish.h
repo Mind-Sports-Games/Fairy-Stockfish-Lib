@@ -448,14 +448,21 @@ namespace fairystockfish {
 
             Stockfish::Notation fromOurNotation(fairystockfish::Notation n) const;
 
+            void init(
+                std::string startingFen,
+                MoveList const &moveList,
+                bool _isChess960=false
+            );
+
         public:
             Position(std::string _variant, bool _isChess960=false);
+            Position(std::string _variant, std::string startingFen, bool _isChess960=false);
 
             Position(
                 std::string _variant,
                 std::string startingFen,
                 MoveList const &moveList,
-                bool _isChess960
+                bool _isChess960=false
             );
 
             Position(Position const &p);

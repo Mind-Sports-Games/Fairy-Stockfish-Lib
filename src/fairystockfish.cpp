@@ -311,35 +311,12 @@ fairystockfish::Position::Position(
 {
 }
 
-fairystockfish::Position::Position(
-    std::string _variant,
-    bool _isChess960
-)
-    : variant(_variant)
-    , isChess960(_isChess960)
-    , position{}
-    , states{Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1))}
-{
-    const Stockfish::Variant* v = Stockfish::variants.find(variant)->second;
-    std::shared_ptr<Stockfish::Position> p(
-        std::make_shared<Stockfish::Position>()
-    );
-    std::string fen = v->startFen;
-    p->set(v, fen, isChess960, &states->back(), Stockfish::Threads.main());
-    position = p;
-}
-
-fairystockfish::Position::Position(
-    std::string _variant,
+void fairystockfish::Position::init(
     std::string startingFen,
     MoveList const &moveList,
     bool _isChess960
-)
-    : variant(_variant)
-    , isChess960(_isChess960)
-    , position{}
-    , states{Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1))}
-{
+) {
+    states = Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1));
     const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
     std::shared_ptr<Stockfish::Position> p =
         std::make_shared<Stockfish::Position>();
@@ -354,6 +331,45 @@ fairystockfish::Position::Position(
         p->do_move(m, states->back());
     }
     position = p;
+}
+
+fairystockfish::Position::Position(
+    std::string _variant,
+    bool _isChess960
+)
+    : variant(_variant)
+    , isChess960(_isChess960)
+    , position{}
+    , states{}
+{
+    const Stockfish::Variant* v = Stockfish::variants.find(variant)->second;
+    std::string fen = v->startFen;
+    init(fen, {}, _isChess960);
+}
+
+fairystockfish::Position::Position(
+    std::string _variant, std::string startingFen, bool _isChess960
+)
+    : variant(_variant)
+    , isChess960(_isChess960)
+    , position{}
+    , states{}
+{
+    init(startingFen, {}, _isChess960);
+}
+
+fairystockfish::Position::Position(
+    std::string _variant,
+    std::string startingFen,
+    MoveList const &moveList,
+    bool _isChess960
+)
+    : variant(_variant)
+    , isChess960(_isChess960)
+    , position{}
+    , states{}
+{
+    init(startingFen, moveList, isChess960);
 }
 
 fairystockfish::Position::Position(Position const &p)
