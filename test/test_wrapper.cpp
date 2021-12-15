@@ -434,6 +434,18 @@ TEST_CASE("Shogi Forced checking repetition is a loss") {
     }
 }
 
+TEST_CASE("fairystockfish variant setup stuff v3") {
+    fairystockfish::init();
+
+    for (auto const &variantName : variants) {
+        SUBCASE("Initial fen There must the appropriate amount of pieces ") {
+            fairystockfish::Position shogiPos("shogi");
+            auto result = shogiPos.piecesOnBoard();
+            CHECK(result.size() == 40);
+        }
+    }
+}
+
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
 TEST_CASE("Shogi Repetition") {
