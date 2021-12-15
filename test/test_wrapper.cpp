@@ -449,26 +449,30 @@ TEST_CASE("fairystockfish variant makeMoves v3") {
 
     SUBCASE("Must be able to make moves more than once from the same position") {
         fairystockfish::Position shogiPos("shogi");
-        auto newPosition = shogiPos.makeMoves(
-            {
-                "h2i2", "b8a8", "i2h2",
-                "a8b8", "h2i2", "b8a8",
-                "i2h2", "a8b8", "h2i2",
-                "b8a8", "i2h2", "a8b8"
-            }
-        );
-        auto optGameEnd = newPosition.isOptionalGameEnd();
-        REQUIRE(std::get<0>(optGameEnd));
-        auto newPosition2 = shogiPos.makeMoves(
-            {
-                "h2i2", "b8a8", "i2h2",
-                "a8b8", "h2i2", "b8a8",
-                "i2h2", "a8b8", "h2i2",
-                "b8a8", "i2h2", "a8b8"
-            }
-        );
-        auto optGameEnd2 = newPosition.isOptionalGameEnd();
-        REQUIRE(std::get<0>(optGameEnd2));
+        {
+            auto newPosition = shogiPos.makeMoves(
+                {
+                    "h2i2", "b8a8", "i2h2",
+                    "a8b8", "h2i2", "b8a8",
+                    "i2h2", "a8b8", "h2i2",
+                    "b8a8", "i2h2", "a8b8"
+                }
+            );
+            auto optGameEnd = newPosition.isOptionalGameEnd();
+            REQUIRE(std::get<0>(optGameEnd));
+        }
+        for (size_t i = 0; i < 1000; ++i) {
+            auto newPosition2 = shogiPos.makeMoves(
+                {
+                    "h2i2", "b8a8", "i2h2",
+                    "a8b8", "h2i2", "b8a8",
+                    "i2h2", "a8b8", "h2i2",
+                    "b8a8", "i2h2", "a8b8"
+                }
+            );
+            auto optGameEnd2 = newPosition2.isOptionalGameEnd();
+            REQUIRE(std::get<0>(optGameEnd2));
+        }
     }
 }
 

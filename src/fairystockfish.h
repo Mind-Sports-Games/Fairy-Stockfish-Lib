@@ -19,6 +19,7 @@
 #include "apiutil.h"
 
 #include <vector>
+#include <memory>
 #include <map>
 
 namespace fairystockfish {
@@ -433,9 +434,11 @@ namespace fairystockfish {
 
         private:
             std::shared_ptr<const Stockfish::Position> position;
-            Stockfish::StateListPtr states;
+            std::unique_ptr<const std::deque<Stockfish::StateInfo>> states;
 
-            Stockfish::StateListPtr copy(Stockfish::StateListPtr const &slp) const;
+            Stockfish::StateListPtr copy(
+                std::unique_ptr<const std::deque<Stockfish::StateInfo>> const &slp
+            ) const;
             SFPositionPtr copyPosition(Stockfish::StateListPtr &newStates) const;
 
             // This constructor is private
@@ -443,7 +446,7 @@ namespace fairystockfish {
                 std::string _variant,
                 bool _isChess960,
                 std::shared_ptr<const Stockfish::Position> position,
-                Stockfish::StateListPtr _states
+                std::unique_ptr<const std::deque<Stockfish::StateInfo>> _states
             );
 
             Stockfish::Notation fromOurNotation(fairystockfish::Notation n) const;

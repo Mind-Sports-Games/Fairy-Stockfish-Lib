@@ -1,4 +1,4 @@
-# https://stackoverflow.com/questions/45688522/how-to-enable-c17-in-cmake 
+# https://stackoverflow.com/questions/45688522/how-to-enable-c17-in-cmake
 # Cmake 3.10 for std++17 flags properly
 cmake_minimum_required(VERSION 3.10)
 project(fairystockfish)
@@ -87,7 +87,7 @@ set(FSF_SOURCE_FILES
 #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
-set(SOURCE_FILES 
+set(SOURCE_FILES
     src/fairystockfish.h
     src/fairystockfish.cpp
 )

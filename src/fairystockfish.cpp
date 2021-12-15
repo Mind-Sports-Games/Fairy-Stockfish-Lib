@@ -302,12 +302,12 @@ fairystockfish::Position::Position(
     std::string _variant,
     bool _isChess960,
     std::shared_ptr<const Stockfish::Position> position,
-    Stockfish::StateListPtr _states
+    std::unique_ptr<const std::deque<Stockfish::StateInfo>> _states
 )
     : variant(_variant)
     , isChess960(_isChess960)
-    , position{position}
-    , states{copy(_states)}
+    , position{std::move(position)}
+    , states{std::move(_states)}
 {
 }
 
@@ -316,21 +316,23 @@ void fairystockfish::Position::init(
     MoveList const &moveList,
     bool _isChess960
 ) {
-    states = Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1));
     const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
+
+    Stockfish::StateListPtr inputStates = Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1));
     std::shared_ptr<Stockfish::Position> p =
         std::make_shared<Stockfish::Position>();
-    p->set(v, startingFen, isChess960, &states->back(), Stockfish::Threads.main());
+    p->set(v, startingFen, isChess960, &inputStates->back(), Stockfish::Threads.main());
 
     // Make the moves in the given position
     for (auto moveStr : moveList) {
         Stockfish::Move m = Stockfish::UCI::to_move(*p, moveStr);
         if (m == Stockfish::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
         // do the move
-        states->emplace_back();
-        p->do_move(m, states->back());
+        inputStates->emplace_back();
+        p->do_move(m, inputStates->back());
     }
     position = p;
+    states = std::move(inputStates);
 }
 
 fairystockfish::Position::Position(
@@ -388,8 +390,11 @@ fairystockfish::Position& fairystockfish::Position::operator=(Position const &p)
     return *this;
 }
 
-Stockfish::StateListPtr fairystockfish::Position::copy(Stockfish::StateListPtr const &slp) const {
-    return std::make_unique<std::deque<Stockfish::StateInfo>>(*slp);
+Stockfish::StateListPtr fairystockfish::Position::copy(
+    std::unique_ptr<const std::deque<Stockfish::StateInfo>> const &slp
+) const {
+    std::deque<Stockfish::StateInfo> newStates = *slp;
+    return std::make_unique<std::deque<Stockfish::StateInfo>>(std::move(newStates));
 }
 
 fairystockfish::Position::SFPositionPtr fairystockfish::Position::copyPosition(Stockfish::StateListPtr &newStates) const  {
@@ -422,8 +427,8 @@ fairystockfish::Position fairystockfish::Position::makeMoves(MoveList const &uci
         Stockfish::Move m = Stockfish::UCI::to_move(*p, moveStr);
         if (m == Stockfish::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
         // do the move
-        states->emplace_back();
-        p->do_move(m, states->back());
+        newStates->emplace_back();
+        p->do_move(m, newStates->back());
     }
 
     return Position(variant, isChess960, std::move(p), std::move(newStates));
@@ -457,7 +462,7 @@ std::vector<std::string> fairystockfish::Position::getSANMoves(
 
         retVal.push_back(Stockfish::SAN::move_to_san(*p, m, notation));
 
-        states->emplace_back();
+        newStates->emplace_back();
         p->do_move(m, newStates->back());
 
     }
