@@ -325,8 +325,7 @@ fairystockfish::Position::Position(
         std::make_shared<Stockfish::Position>()
     );
     std::string fen = v->startFen;
-    Stockfish::StateInfo si;
-    p->set(v, fen, isChess960, &si, Stockfish::Threads.main());
+    p->set(v, fen, isChess960, &states->back(), Stockfish::Threads.main());
     position = p;
 }
 
