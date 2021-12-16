@@ -143,238 +143,6 @@ namespace fairystockfish {
     std::map<std::string, PieceInfo> availablePieces();
 
     ///------------------------------------------------------------------------------
-    /// Converts a UCI move into a SAN notation move given the variant and fen and
-    /// whether it's chess960 or not.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMove The move in UCI notation.
-    /// @param isChess960 Whether the game is chess960 or not.
-    /// @param notation The desired SAN notation.
-    ///
-    /// @return The move in SAN notation
-    ///------------------------------------------------------------------------------
-    std::string getSAN(
-        std::string variantName,
-        std::string fen,
-        std::string uciMove,
-        bool isChess960=false,
-        Notation notation=Notation::NOTATION_DEFAULT
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Converts a set of UCI moves to SAN notation given the variant and fen and
-    /// whether it's chess960 or not.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    /// @param notation The desired SAN notation.
-    ///
-    /// @return A vector of moves in SAN notation
-    ///------------------------------------------------------------------------------
-    std::vector<std::string> getSANMoves(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false,
-        Notation notation=Notation::NOTATION_DEFAULT
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Get legal moves from a given FEN and move list.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return a vector of legal moves in UCI notation
-    ///------------------------------------------------------------------------------
-    std::vector<std::string> getLegalMoves(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Get the resulting FEN from a given FEN and move list
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    /// @param sFen Whether the output is in sFen notation? (I'm guessing here)
-    /// @param showPromoted Whether the fen includes promoted pieces (I'm guessing here)
-    /// @param countStarted No clue. (probably has to do with games that end by certain
-    ///                     types of counts, like repetitions?)
-    ///
-    /// @return the FEN of the new position
-    ///------------------------------------------------------------------------------
-    std::string getFEN(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false,
-        bool sFen=false,
-        bool showPromoted=false,
-        int countStarted=0
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Get check status from a given fen and movelist.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return the FEN of the new position
-    ///------------------------------------------------------------------------------
-    bool givesCheck(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Gets result from a given FEN, considering variant end, checkmate and stalemate
-    /// Note that this function will assert there are no legal moves. So only call it
-    /// when legalMoves are zero
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return Returns an integer that represents the result (don't know what it
-    ///         means yet
-    ///------------------------------------------------------------------------------
-    int gameResult(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Figures out if variant rules immediately end the game.
-    /// Note that this does not mean checkmate, checkmates are somewhere else.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return Returns a boolean indicating if the game is an immediate end as well
-    ///         as the integer result value.
-    ///------------------------------------------------------------------------------
-    std::tuple<bool, int> isImmediateGameEnd(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Get result from given FEN if rules enable game end by player.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    /// @param countStarted No clue. (probably has to do with games that end by certain
-    ///                     types of counts, like repetitions?)
-    ///
-    /// @return Returns a boolean indicating if the game is an immediate end as well
-    ///         as the integer result value.
-    ///------------------------------------------------------------------------------
-    std::tuple<bool, int> isOptionalGameEnd(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false,
-        int countStarted=0
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Returns whether it's a draw or not.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param ply the number of ply to consider.
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return Returns a boolean indicating if the game is an immediate end as well
-    ///         as the integer result value.
-    ///------------------------------------------------------------------------------
-    bool isDraw(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        int ply,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Checks for insufficient material on behalf of both players.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param uciMoves A vector of moves in UCI notation
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return Returns two booleans, one for each player which indicate if that player
-    ///         has sufficient material
-    ///------------------------------------------------------------------------------
-    std::tuple<bool, bool> hasInsufficientMaterial(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Tests if the position has a mvoe which draws by repetition,or an earlier
-    /// position has a move that directly reaches the current position.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param ply The number of ply to search (Don't really know?)
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return A vectors of pieces that are "in hand"
-    ///------------------------------------------------------------------------------
-    bool hasGameCycle(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        int ply,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Tests whether there has been at least one repetition of positions since the
-    /// last capture or pawn move.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return A vectors of pieces that are "in hand"
-    ///------------------------------------------------------------------------------
-    bool hasRepeated(
-        std::string variantName,
-        std::string fen,
-        std::vector<std::string> uciMoves,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
     /// Validates an input FEN.
     ///
     /// @param variantName The variant for the fen
@@ -384,37 +152,6 @@ namespace fairystockfish {
     /// @return Whether the FEN is valid or not.
     ///------------------------------------------------------------------------------
     bool validateFEN(
-        std::string variantName,
-        std::string fen,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Returns a piece map for a given position and variant.
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return The map from UCI square notation to piece id integers.
-    ///------------------------------------------------------------------------------
-    std::map<std::string, Piece> piecesOnBoard(
-        std::string variantName,
-        std::string fen,
-        bool isChess960=false
-    );
-
-    ///------------------------------------------------------------------------------
-    /// Returns pieces in hand. It returns a single vector where pieces can be of
-    /// either color. So it's up to the caller to filter them
-    ///
-    /// @param variantName The variant for the fen
-    /// @param fen The FEN of the current possition
-    /// @param isChess960 Whether the game is chess960 or not.
-    ///
-    /// @return A vectors of pieces that are "in hand"
-    ///------------------------------------------------------------------------------
-    std::vector<Piece> piecesInHand(
         std::string variantName,
         std::string fen,
         bool isChess960=false
@@ -451,22 +188,11 @@ namespace fairystockfish {
 
             Stockfish::Notation fromOurNotation(fairystockfish::Notation n) const;
 
-            void init(
-                std::string startingFen,
-                MoveList const &moveList,
-                bool _isChess960=false
-            );
+            void init(std::string startingFen, bool _isChess960=false);
 
         public:
             Position(std::string _variant, bool _isChess960=false);
             Position(std::string _variant, std::string startingFen, bool _isChess960=false);
-
-            Position(
-                std::string _variant,
-                std::string startingFen,
-                MoveList const &moveList,
-                bool _isChess960=false
-            );
 
             Position(Position const &p);
             Position(Position&&) = default;
@@ -591,7 +317,7 @@ namespace fairystockfish {
             ///
             /// @param ply The number of ply to search (Don't really know?)
             ///
-            /// @return A vectors of pieces that are "in hand"
+            /// @return Whether the game has a cycle or not
             ///------------------------------------------------------------------------------
             bool hasGameCycle(int ply) const;
 
@@ -599,7 +325,7 @@ namespace fairystockfish {
             /// Tests whether there has been at least one repetition of positions since the
             /// last capture or pawn move.
             ///
-            /// @return A vectors of pieces that are "in hand"
+            /// @return Whether the game has repeated or not
             ///------------------------------------------------------------------------------
             bool hasRepeated() const;
 

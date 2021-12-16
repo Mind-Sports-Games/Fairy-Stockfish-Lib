@@ -89,7 +89,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.3"; }
+std::string fairystockfish::version() { return "v0.0.4"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -136,134 +136,6 @@ std::map<std::string, fairystockfish::PieceInfo> fairystockfish::availablePieces
     return retVal;
 }
 
-std::string fairystockfish::getSAN(
-    std::string variantName,
-    std::string fen,
-    std::string uciMove,
-    bool isChess960,
-    Notation ourNotation
-) {
-    // Can reuse the method below with a single move in the move list.
-    return getSANMoves(variantName, fen, {uciMove}, isChess960, ourNotation)[0];
-}
-
-std::vector<std::string> fairystockfish::getSANMoves(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960,
-    Notation ourNotation
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.getSANMoves(uciMoves, ourNotation);
-}
-
-std::vector<std::string> fairystockfish::getLegalMoves(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.getLegalMoves();
-}
-
-std::string fairystockfish::getFEN(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960,
-    bool sFen,
-    bool showPromoted,
-    int countStarted
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.getFEN();
-}
-
-bool fairystockfish::givesCheck(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.givesCheck();
-}
-
-int fairystockfish::gameResult(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.gameResult();
-}
-
-std::tuple<bool, int> fairystockfish::isImmediateGameEnd(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.isImmediateGameEnd();
-}
-
-std::tuple<bool, int> fairystockfish::isOptionalGameEnd(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960,
-    int countStarted
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.isOptionalGameEnd(countStarted);
-}
-
-bool fairystockfish::isDraw(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    int ply,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.isDraw(ply);
-}
-
-std::tuple<bool, bool> fairystockfish::hasInsufficientMaterial(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.hasInsufficientMaterial();
-}
-
-
-bool fairystockfish::hasGameCycle(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    int ply,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.hasGameCycle(ply);
-}
-
-bool fairystockfish::hasRepeated(
-    std::string variantName,
-    std::string fen,
-    std::vector<std::string> uciMoves,
-    bool isChess960
-) {
-    Position p(variantName, fen, uciMoves, isChess960);
-    return p.hasRepeated();
-}
 
 bool fairystockfish::validateFEN(
     std::string variantName,
@@ -278,24 +150,6 @@ bool fairystockfish::validateFEN(
     );
 }
 
-std::map<std::string, fairystockfish::Piece>
-fairystockfish::piecesOnBoard(
-    std::string variantName,
-    std::string fen,
-    bool isChess960
-) {
-    Position p(variantName, fen, {}, isChess960);
-    return p.piecesOnBoard();
-}
-
-std::vector<fairystockfish::Piece> fairystockfish::piecesInHand(
-    std::string variantName,
-    std::string fen,
-    bool isChess960
-) {
-    Position p(variantName, fen, {}, isChess960);
-    return p.piecesInHand();
-}
 
 // This constructor is private
 fairystockfish::Position::Position(
@@ -311,26 +165,13 @@ fairystockfish::Position::Position(
 {
 }
 
-void fairystockfish::Position::init(
-    std::string startingFen,
-    MoveList const &moveList,
-    bool _isChess960
-) {
+void fairystockfish::Position::init(std::string startingFen, bool _isChess960) {
     const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
 
     Stockfish::StateListPtr inputStates = Stockfish::StateListPtr(new std::deque<Stockfish::StateInfo>(1));
     std::shared_ptr<Stockfish::Position> p =
         std::make_shared<Stockfish::Position>();
     p->set(v, startingFen, isChess960, &inputStates->back(), Stockfish::Threads.main());
-
-    // Make the moves in the given position
-    for (auto moveStr : moveList) {
-        Stockfish::Move m = Stockfish::UCI::to_move(*p, moveStr);
-        if (m == Stockfish::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
-        // do the move
-        inputStates->emplace_back();
-        p->do_move(m, inputStates->back());
-    }
     position = p;
     states = std::move(inputStates);
 }
@@ -346,7 +187,7 @@ fairystockfish::Position::Position(
 {
     const Stockfish::Variant* v = Stockfish::variants.find(variant)->second;
     std::string fen = v->startFen;
-    init(fen, {}, _isChess960);
+    init(fen, _isChess960);
 }
 
 fairystockfish::Position::Position(
@@ -357,21 +198,7 @@ fairystockfish::Position::Position(
     , position{}
     , states{}
 {
-    init(startingFen, {}, _isChess960);
-}
-
-fairystockfish::Position::Position(
-    std::string _variant,
-    std::string startingFen,
-    MoveList const &moveList,
-    bool _isChess960
-)
-    : variant(_variant)
-    , isChess960(_isChess960)
-    , position{}
-    , states{}
-{
-    init(startingFen, moveList, isChess960);
+    init(startingFen, _isChess960);
 }
 
 fairystockfish::Position::Position(Position const &p)
