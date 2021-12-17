@@ -491,6 +491,7 @@ TEST_CASE("fairystockfish variant makeMoves v3") {
         }
     }
 }
+
 TEST_CASE("fairystockfish variant makeMoves individually") {
     fairystockfish::init();
 
@@ -514,6 +515,33 @@ TEST_CASE("fairystockfish variant makeMoves individually") {
             shogiPos = shogiPos.makeMoves({m});
             REQUIRE(shogiPos.getLegalMoves().size() > 0);
         }
+    }
+}
+
+TEST_CASE("makeMoves and shogi repetition") {
+    fairystockfish::init();
+
+    fairystockfish::Position startingPos("shogi");
+    std::vector<std::string> moves = {
+        "h2i2", "b8a8", "i2h2",
+        "a8b8", "h2i2", "b8a8",
+        "i2h2", "a8b8", "h2i2",
+        "b8a8", "i2h2", "a8b8"
+    };
+
+    SUBCASE("Must be able to make the moves all at once") {
+        auto shogiPos = startingPos.makeMoves(moves);
+        auto result = shogiPos.isOptionalGameEnd();
+        REQUIRE(std::get<0>(result));
+    }
+
+    SUBCASE("Must be able to make ") {
+        auto shogiPos = startingPos;
+        for (auto const &m : moves) {
+            shogiPos = shogiPos.makeMoves({m});
+        }
+        auto result = shogiPos.isOptionalGameEnd();
+        REQUIRE(std::get<0>(result));
     }
 }
 

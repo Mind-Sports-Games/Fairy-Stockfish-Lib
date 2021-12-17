@@ -1,9 +1,6 @@
 #ifndef FAIRYSTOCKFISH_H
 #define FAIRYSTOCKFISH_H
 
-#include <sstream>
-#include <climits>
-
 #include "misc.h"
 #include "types.h"
 #include "bitboard.h"
@@ -18,9 +15,12 @@
 #include "variant.h"
 #include "apiutil.h"
 
-#include <vector>
-#include <memory>
+#include <climits>
 #include <map>
+#include <memory>
+#include <sstream>
+#include <list>
+#include <vector>
 
 namespace fairystockfish {
     using FenValidation = Stockfish::FEN::FenValidation;
@@ -163,7 +163,11 @@ namespace fairystockfish {
     class Position {
         public:
             using MoveList = std::vector<std::string>;
-            using SFPositionPtr = std::unique_ptr<Stockfish::Position>;
+            using SFPositionPtr = std::shared_ptr<Stockfish::Position>;
+            using SFPositionConstPtr = std::shared_ptr<const Stockfish::Position>;
+            using StateInfoPtr = std::shared_ptr<const Stockfish::StateInfo>;
+            using MutableStateInfoPtr = std::shared_ptr<Stockfish::StateInfo>;
+            using ListOfImmutableStatesPtr = std::shared_ptr<std::list<StateInfoPtr>>;
 
             std::string variant;
             bool isChess960;
@@ -171,20 +175,19 @@ namespace fairystockfish {
 
         private:
             std::shared_ptr<const Stockfish::Position> position;
-            std::unique_ptr<const std::deque<Stockfish::StateInfo>> states;
+            // We never give this deque to FairyStockfish proper,
+            // instead, we only ever give it the address of one of the state infos.
+            //
+            // We'll be pretending that we have value semantics, to achieve this
+            // we're going to use a linked_list of shared_ptrs<const T> of StateInfo
+            // This list is
+            mutable ListOfImmutableStatesPtr states = std::make_shared<std::list<StateInfoPtr>>();
 
-            Stockfish::StateListPtr copy(
-                std::unique_ptr<const std::deque<Stockfish::StateInfo>> const &slp
-            ) const;
-            SFPositionPtr copyPosition(Stockfish::StateListPtr &newStates) const;
-
-            // This constructor is private
-            Position(
-                std::string _variant,
-                bool _isChess960,
-                std::shared_ptr<const Stockfish::Position> position,
-                std::unique_ptr<const std::deque<Stockfish::StateInfo>> _states
-            );
+            // Copy the position
+            // NOTE: This depends some things that FairyStockfish may break
+            //       later. So when we upgrade FairyStockfish we will want to
+            //       be certain it's still ok.
+            SFPositionPtr copyPosition(SFPositionConstPtr const &ptr) const;
 
             Stockfish::Notation fromOurNotation(fairystockfish::Notation n) const;
 
@@ -194,9 +197,9 @@ namespace fairystockfish {
             Position(std::string _variant, bool _isChess960=false);
             Position(std::string _variant, std::string startingFen, bool _isChess960=false);
 
-            Position(Position const &p);
+            Position(Position const &p) = default;
             Position(Position&&) = default;
-            Position& operator=(Position const &p);
+            Position& operator=(Position const &p) = default;
             Position& operator=(Position&&) = default;
             virtual ~Position() = default;
 
