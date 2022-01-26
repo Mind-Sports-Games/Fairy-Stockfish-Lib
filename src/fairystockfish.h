@@ -27,7 +27,7 @@ namespace fairystockfish {
 
 
     // Copied from the apiutil.h
-    enum Notation {
+    enum Notation : std::uint8_t {
         NOTATION_DEFAULT,
         // https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
         NOTATION_SAN,
