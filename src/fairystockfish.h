@@ -76,7 +76,7 @@ namespace fairystockfish {
                 return _color == Stockfish::Color::WHITE;
             }
             bool isBlack() const {
-                return _color == Stockfish::Color::WHITE;
+                return _color == Stockfish::Color::BLACK;
             }
     };
 
