@@ -64,6 +64,13 @@ TEST_CASE("fairystockfish variant setup stuff") {
     }
 }
 
+TEST_CASE("availablePieceChars") {
+    fairystockfish::init();
+    auto pieces = fairystockfish::availablePieceChars();
+    REQUIRE(pieces.find('a') != std::string::npos);
+    REQUIRE(pieces.find('A') != std::string::npos);
+}
+
 TEST_CASE("fairystockfish invalid fens") {
     fairystockfish::init();
 

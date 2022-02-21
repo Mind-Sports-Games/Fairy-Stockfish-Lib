@@ -3,6 +3,7 @@
 #include <iostream>
 #include <climits>
 #include <sstream>
+#include <set>
 #include <mutex>
 
 #include "tabulate.hpp"
@@ -89,7 +90,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.5"; }
+std::string fairystockfish::version() { return "v0.0.6"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -135,6 +136,41 @@ std::map<std::string, fairystockfish::PieceInfo> fairystockfish::availablePieces
     }
     return retVal;
 }
+
+enum class IsPromotable {
+    PROMOTABLE,
+    ALL
+};
+
+static std::string availablePieceChars__impl(IsPromotable t) {
+    std::set<char> pieces;
+    auto copy = [&](auto const &pieceTypes, SF::Variant const *variant) {
+        for (const auto &pt : pieceTypes) {
+            pieces.insert(variant->pieceToChar[make_piece(SF::WHITE, pt)]);
+            pieces.insert(variant->pieceToChar[make_piece(SF::BLACK, pt)]);
+        }
+    };
+    for (const auto &[name, variant] : SF::variants) {
+        if (t == IsPromotable::PROMOTABLE) {
+            copy(variant->promotionPieceTypes, variant);
+        } else {
+            copy(variant->pieceTypes, variant);
+        }
+    }
+    std::string retVal;
+    retVal.resize(pieces.size());
+    std::copy(pieces.begin(), pieces.end(), retVal.begin());
+    return retVal;
+}
+
+std::string fairystockfish::availablePieceChars() {
+    return availablePieceChars__impl(IsPromotable::ALL);
+}
+
+std::string fairystockfish::availablePromotablePieceChars() {
+    return availablePieceChars__impl(IsPromotable::PROMOTABLE);
+}
+
 
 
 bool fairystockfish::validateFEN(

@@ -142,6 +142,23 @@ namespace fairystockfish {
     ///------------------------------------------------------------------------------
     std::map<std::string, PieceInfo> availablePieces();
 
+
+    ///------------------------------------------------------------------------------
+    /// All of the available piece chars for all variants in a string.
+    /// NOTE: These are both upper and lower case.
+    ///
+    /// @return The string
+    ///------------------------------------------------------------------------------
+    std::string availablePieceChars();
+
+    ///------------------------------------------------------------------------------
+    /// All of the available promotable piece chars for all variants as a string.
+    /// NOTE: These are both upper and lower case.
+    ///
+    /// @return The string
+    ///------------------------------------------------------------------------------
+    std::string availablePromotablePieceChars();
+
     ///------------------------------------------------------------------------------
     /// Validates an input FEN.
     ///
