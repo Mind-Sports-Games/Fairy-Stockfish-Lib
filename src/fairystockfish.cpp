@@ -90,7 +90,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.6"; }
+std::string fairystockfish::version() { return "v0.0.7"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -144,10 +144,16 @@ enum class IsPromotable {
 
 static std::string availablePieceChars__impl(IsPromotable t) {
     std::set<char> pieces;
+    auto addPiece = [&](char p) {
+        if (p != ' ') pieces.insert(p);
+    };
+
     auto copy = [&](auto const &pieceTypes, SF::Variant const *variant) {
         for (const auto &pt : pieceTypes) {
-            pieces.insert(variant->pieceToChar[make_piece(SF::WHITE, pt)]);
-            pieces.insert(variant->pieceToChar[make_piece(SF::BLACK, pt)]);
+            addPiece(variant->pieceToChar[make_piece(SF::WHITE, pt)]);
+            addPiece(variant->pieceToChar[make_piece(SF::BLACK, pt)]);
+            addPiece(variant->pieceToCharSynonyms[make_piece(SF::WHITE, pt)]);
+            addPiece(variant->pieceToCharSynonyms[make_piece(SF::BLACK, pt)]);
         }
     };
     for (const auto &[name, variant] : SF::variants) {

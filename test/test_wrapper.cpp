@@ -69,6 +69,8 @@ TEST_CASE("availablePieceChars") {
     auto pieces = fairystockfish::availablePieceChars();
     REQUIRE(pieces.find('a') != std::string::npos);
     REQUIRE(pieces.find('A') != std::string::npos);
+    REQUIRE(pieces.find('s') != std::string::npos);
+    REQUIRE(pieces.find('S') != std::string::npos);
 }
 
 TEST_CASE("fairystockfish invalid fens") {
