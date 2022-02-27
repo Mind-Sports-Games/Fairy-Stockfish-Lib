@@ -554,6 +554,72 @@ TEST_CASE("makeMoves and shogi repetition") {
     }
 }
 
+TEST_CASE("passing in othello") {
+    fairystockfish::loadVariantConfig(R"variants(
+[flipersi]
+immobile = p
+startFen = 8/8/8/8/8/8/8/8[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppp] w 0 1
+pieceDrops = true
+promotionPieceTypes = -
+doubleStep = false
+castling = false
+stalemateValue = loss
+stalematePieceCount = true
+materialCounting = unweighted
+enclosingDrop = reversi
+enclosingDropStart = d4 e4 d5 e5
+immobilityIllegal = false
+flipEnclosedPieces = reversi
+passOnStalemate = false
+
+[flipello:flipersi]
+startFen = 8/8/8/3pP3/3Pp3/8/8/8[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppp] w 0 1
+passOnStalemate = true
+    )variants"
+    );
+    fairystockfish::init();
+
+    fairystockfish::Position startingPos("flipello");
+    std::vector<std::string> moves = {
+        "P@d6", "P@c4", "P@f3",
+        "P@f4", "P@e3", "P@e6",
+        "P@c6", "P@f6", "P@c5",
+        "P@c3", "P@d3", "P@f2",
+        "P@f5", "P@d2", "P@b4",
+        "P@a5", "P@b3", "P@d7",
+        "P@a4", "P@a3", "P@c2",
+        "P@b5", "P@e2", "P@d1",
+        "P@g4", "P@h5", "P@h4",
+        "P@h3", "P@e1", "P@f1",
+        "P@g3", "P@h2", "P@b1",
+        "P@b2", "P@a6", "P@a7",
+        "P@b6", "P@b7", "P@c7",
+        "P@g2", "P@a8", "P@c8",
+        "P@a2", "d1d1", "P@a1",
+        "d1d1", "P@b8", "d1d1",
+        "P@c1", "d1d1", "P@d8",
+        "P@e7", "P@e8", "P@f8",
+        "P@g1", "P@f7", "P@h1",
+        "e2e2", "P@g5", "P@g6",
+        // This is where  it previously
+        // passed, and we can play it out.
+        "P@h7", "P@h6", "P@g7",
+        "P@g8"
+    };
+
+    SUBCASE("This is a valid game") {
+        auto pos = startingPos;
+        pos = pos.makeMoves(moves);
+
+        auto legalMoves = pos.getLegalMoves();
+        REQUIRE(legalMoves.size() == 1);
+        REQUIRE(legalMoves[0] == "a1a1");
+
+    }
+    std::cout << 10 << std::endl;
+
+}
+
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
 TEST_CASE("Shogi Repetition") {
