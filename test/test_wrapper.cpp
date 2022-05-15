@@ -616,7 +616,48 @@ passOnStalemate = true
         REQUIRE(legalMoves[0] == "a1a1");
 
     }
-    std::cout << 10 << std::endl;
+
+}
+
+TEST_CASE("5check game can continue after 3 checks") {
+    fairystockfish::init();
+
+    fairystockfish::Position startingPos("5check");
+    std::vector<std::string> moves = {
+        "e2e4", "c7c6", "d2d4", "d7d5",
+        "e4d5", "c6c5", "d4c5", "c8g4",
+        "f1b5", "g4d7", "b5d7", "d8d7",
+        "c5c6", "b7c6", "d5c6", "d7d1",
+        "e1d1", "b8c6", "b2b3", "e8c8",
+        "c1d2", "d8d2",
+    };
+
+    SUBCASE("This is a valid game") {
+        auto pos = startingPos;
+        pos = pos.makeMoves(moves);
+        auto legalMoves = pos.getLegalMoves();
+        REQUIRE(legalMoves.size() > 0);
+        bool foundb1b2 = false;
+        for (auto const & m: legalMoves) {
+            if (m == "b1d2") {
+                foundb1b2 = true;
+                break;
+            }
+        }
+        REQUIRE(foundb1b2);
+
+    }
+}
+
+TEST_CASE("Bug report https://github.com/Mind-Sports-Games/Fairy-Stockfish-Rust/issues/2") {
+    fairystockfish::init();
+
+    fairystockfish::Position startingPos(
+        "chess",
+        "8/1Q2b1k1/2p3p1/p2p2P1/8/5PB1/PP3RK1/3r3q w - - 2 37",
+        false
+    );
+    REQUIRE(startingPos.gameResult() == -32000);
 
 }
 
