@@ -652,13 +652,37 @@ TEST_CASE("5check game can continue after 3 checks") {
 TEST_CASE("Bug report https://github.com/Mind-Sports-Games/Fairy-Stockfish-Rust/issues/2") {
     fairystockfish::init();
 
-    fairystockfish::Position startingPos(
+    // black wins
+    fairystockfish::Position pos1(
         "chess",
         "8/1Q2b1k1/2p3p1/p2p2P1/8/5PB1/PP3RK1/3r3q w - - 2 37",
         false
     );
-    REQUIRE(startingPos.gameResult() == -32000);
+    REQUIRE(pos1.gameResult() == -32000);
 
+    // white wins
+    fairystockfish::Position pos2(
+        "chess",
+        "2r3kr/p5Rp/1p3Qn1/4q3/8/2P5/P1P3PP/5R1K b - - 6 27",
+        false
+    );
+    REQUIRE(pos2.gameResult() == -32000);
+
+    // stalemate
+    fairystockfish::Position pos3(
+        "chess",
+        "rn2k1nr/pp4pp/3p4/q1pP4/P1P2p1b/1b2pPRP/1P1NP1PQ/2B1KBNR w Kkq - 0 13",
+        false
+    );
+    REQUIRE(pos3.gameResult() == 0);
+
+    // Ongoing
+    fairystockfish::Position pos4(
+        "chess",
+         "2r3kr/p4R1p/1p3Qn1/4q3/8/2P5/P1P3PP/5R1K w - - 5 27",
+        false
+    );
+    REQUIRE(pos4.gameResult() == 0);
 }
 
 /*
