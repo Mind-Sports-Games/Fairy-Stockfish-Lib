@@ -192,6 +192,58 @@ bool fairystockfish::validateFEN(
     );
 }
 
+// NOTE: This is certainly not the "best" way to convert these moves
+//       but it's better than nothing.
+std::vector<std::string> fairystockfish::to960Uci(
+    std::string variantName,
+    std::vector<std::string> moves
+) {
+    Position pos(variantName, false);
+    Position pos960(variantName, true);
+    std::vector<std::string> newMoves;
+    for (auto const &move : moves) {
+        // Get legal moves from both positions
+        auto uciMoves = pos.getLegalMoves();
+        auto uci960Moves = pos960.getLegalMoves();
+
+        // Sort them.
+        std::sort(uciMoves.begin(), uciMoves.end());
+        std::sort(uci960Moves.begin(), uci960Moves.end());
+
+        std::vector<std::string> onlyIn960;
+        std::set_difference(
+            uci960Moves.begin(), uci960Moves.end(),
+            uciMoves.begin(), uciMoves.end(),
+            std::inserter(onlyIn960, onlyIn960.begin())
+        );
+
+        std::vector<std::string> onlyNormalUci;
+        std::set_difference(
+            uciMoves.begin(), uciMoves.end(),
+            uci960Moves.begin(), uci960Moves.end(),
+            std::inserter(onlyNormalUci, onlyNormalUci.begin())
+        );
+        if (
+            onlyIn960.size() == 1 &&
+            onlyNormalUci.size() == 1 &&
+            onlyNormalUci.front() == move
+        ) {
+            // If they differ by 1 move, and that move is the
+            // one that's supposed to played, use those moves but
+            // record the 960 one.
+            pos = pos.makeMoves({onlyNormalUci.front()});
+            pos960 = pos960.makeMoves({onlyIn960.front()});
+            newMoves.push_back(onlyIn960.front());
+        } else {
+            // Otherwise play the same move and record it.
+            pos = pos.makeMoves({move});
+            pos960 = pos960.makeMoves({move});
+            newMoves.push_back(move);
+        }
+    }
+    return newMoves;
+}
+
 void fairystockfish::Position::init(std::string startingFen, bool _isChess960) {
     const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
 
@@ -427,3 +479,4 @@ std::vector<fairystockfish::Piece> fairystockfish::Position::piecesInHand() cons
     }
     return retVal;
 }
+

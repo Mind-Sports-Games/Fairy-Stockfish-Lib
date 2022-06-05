@@ -685,6 +685,41 @@ TEST_CASE("Bug report https://github.com/Mind-Sports-Games/Fairy-Stockfish-Rust/
     REQUIRE(pos4.gameResult() == 0);
 }
 
+TEST_CASE("Convert to chess960") {
+    fairystockfish::init();
+    //https://lichess.org/BdvgPSMd#82
+    //from src/test/scala/chess/AutodrawTest.scala
+    std::vector<std::string> moves{
+        "e2e4", "c7c5", "g1f3", "d7d6", "d2d4", "c5d4", "f3d4",
+        "g8f6", "b1c3", "g7g6", "c1g5", "f8g7", "f2f4", "b8c6",
+        "f1b5", "c8d7", "d4c6", "d7c6", "b5c6", "b7c6", "e1g1"
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("chess", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0]  == "e2e4");
+    REQUIRE(_960Moves[1]  == "c7c5");
+    REQUIRE(_960Moves[2]  == "g1f3");
+    REQUIRE(_960Moves[3]  == "d7d6");
+    REQUIRE(_960Moves[4]  == "d2d4");
+    REQUIRE(_960Moves[5]  == "c5d4");
+    REQUIRE(_960Moves[6]  == "f3d4");
+    REQUIRE(_960Moves[7]  == "g8f6");
+    REQUIRE(_960Moves[8]  == "b1c3");
+    REQUIRE(_960Moves[9]  == "g7g6");
+    REQUIRE(_960Moves[10] == "c1g5");
+    REQUIRE(_960Moves[11] == "f8g7");
+    REQUIRE(_960Moves[12] == "f2f4");
+    REQUIRE(_960Moves[13] == "b8c6");
+    REQUIRE(_960Moves[14] == "f1b5");
+    REQUIRE(_960Moves[15] == "c8d7");
+    REQUIRE(_960Moves[16] == "d4c6");
+    REQUIRE(_960Moves[17] == "d7c6");
+    REQUIRE(_960Moves[18] == "b5c6");
+    REQUIRE(_960Moves[19] == "b7c6");
+    REQUIRE(_960Moves[20] == "e1h1");
+}
+
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
 TEST_CASE("Shogi Repetition") {

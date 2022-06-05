@@ -175,6 +175,20 @@ namespace fairystockfish {
     );
 
     ///------------------------------------------------------------------------------
+    /// Converts uci moves into chess960 notation
+    ///
+    /// @param variantName The variant for the fen
+    /// @param fen The FEN of the current possition
+    /// @param isChess960 Whether the game is chess960 or not.
+    ///
+    /// @return Whether the FEN is valid or not.
+    ///------------------------------------------------------------------------------
+    std::vector<std::string> to960Uci(
+        std::string variantName,
+        std::vector<std::string> moves
+    );
+
+    ///------------------------------------------------------------------------------
     /// A position with a specific game variant.
     ///------------------------------------------------------------------------------
     class Position {
