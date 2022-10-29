@@ -90,7 +90,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.11"; }
+std::string fairystockfish::version() { return "v0.0.12"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -228,12 +228,26 @@ std::vector<std::string> fairystockfish::to960Uci(
             onlyNormalUci.size() == 1 &&
             onlyNormalUci.front() == move
         ) {
+            // The idea behind this code is that this will catch other
+            // 960 moves that I'm not aware of, but it only works if
+            // one move in the position has a different 960 representation
+            //
             // If they differ by 1 move, and that move is the
             // one that's supposed to played, use those moves but
             // record the 960 one.
             pos = pos.makeMoves({onlyNormalUci.front()});
             pos960 = pos960.makeMoves({onlyIn960.front()});
             newMoves.push_back(onlyIn960.front());
+        } else if (move == "e1c1") {
+            // We know we have to translate these, so do it.
+            pos = pos.makeMoves({"e1c1"});
+            pos960 = pos960.makeMoves({"e1a1"});
+            newMoves.push_back("e1a1");
+        } else if (move == "e1g1") {
+            // We know we have to translate these, so do it.
+            pos = pos.makeMoves({"e1g1"});
+            pos960 = pos960.makeMoves({"e1h1"});
+            newMoves.push_back("e1h1");
         } else {
             // Otherwise play the same move and record it.
             pos = pos.makeMoves({move});
