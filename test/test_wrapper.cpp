@@ -720,7 +720,7 @@ TEST_CASE("Convert to chess960") {
     REQUIRE(_960Moves[20] == "e1h1");
 }
 
-TEST_CASE("Convert to chess960 #2") {
+TEST_CASE("Convert to chess960 #2a") {
     fairystockfish::init();
     std::vector<std::string> moves{
         "e2e4", "b8c6", "b2b3", "e7e6", "c1b2", "d8h4", "b1c3",
@@ -746,6 +746,112 @@ TEST_CASE("Convert to chess960 #2") {
     REQUIRE(_960Moves[13] == "a7a6");
     REQUIRE(_960Moves[14] == "e1h1");
 }
+
+TEST_CASE("Convert to chess960 #2b") {
+    fairystockfish::init();
+    std::vector<std::string> moves{
+        "e2e4", "b8c6", "b2b3", "e7e6", "c1b2", "d8h4", "b1c3",
+        "h4e7", "d1f3", "c6d4", "f1b5", "d4f3", "g1f3", "a7a6",
+        "e1c1"
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("5check", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0]  == "e2e4");
+    REQUIRE(_960Moves[1]  == "b8c6");
+    REQUIRE(_960Moves[2]  == "b2b3");
+    REQUIRE(_960Moves[3]  == "e7e6");
+    REQUIRE(_960Moves[4]  == "c1b2");
+    REQUIRE(_960Moves[5]  == "d8h4");
+    REQUIRE(_960Moves[6]  == "b1c3");
+    REQUIRE(_960Moves[7]  == "h4e7");
+    REQUIRE(_960Moves[8]  == "d1f3");
+    REQUIRE(_960Moves[9]  == "c6d4");
+    REQUIRE(_960Moves[10] == "f1b5");
+    REQUIRE(_960Moves[11] == "d4f3");
+    REQUIRE(_960Moves[12] == "g1f3");
+    REQUIRE(_960Moves[13] == "a7a6");
+    REQUIRE(_960Moves[14] == "e1a1");
+}
+
+TEST_CASE("Convert to chess960 #3a (black)") {
+    fairystockfish::init();
+    std::vector<std::string> moves{
+        "e2e4", "b7b6", "b1c3", "c8b7",
+        "d2d4", "g7g6", "g1f3", "f8g7",
+        "f3g5", "g8f6", "e4e5", "b8c6",
+        "b2b3", "d7d6", "e5f6", "g7f6",
+        "f1c4", "e7e6", "c3e4", "d8e7",
+        "e4f6", "e7f6", "c4b5", "e8c8"
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("5check", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0] == "e2e4");
+    REQUIRE(_960Moves[1] == "b7b6");
+    REQUIRE(_960Moves[2] == "b1c3");
+    REQUIRE(_960Moves[3] == "c8b7");
+    REQUIRE(_960Moves[4] == "d2d4");
+    REQUIRE(_960Moves[5] == "g7g6");
+    REQUIRE(_960Moves[6] == "g1f3");
+    REQUIRE(_960Moves[7] == "f8g7");
+    REQUIRE(_960Moves[8] == "f3g5");
+    REQUIRE(_960Moves[9] == "g8f6");
+    REQUIRE(_960Moves[10] == "e4e5");
+    REQUIRE(_960Moves[11] == "b8c6");
+    REQUIRE(_960Moves[12] == "b2b3");
+    REQUIRE(_960Moves[13] == "d7d6");
+    REQUIRE(_960Moves[14] == "e5f6");
+    REQUIRE(_960Moves[15] == "g7f6");
+    REQUIRE(_960Moves[16] == "f1c4");
+    REQUIRE(_960Moves[17] == "e7e6");
+    REQUIRE(_960Moves[18] == "c3e4");
+    REQUIRE(_960Moves[19] == "d8e7");
+    REQUIRE(_960Moves[20] == "e4f6");
+    REQUIRE(_960Moves[21] == "e7f6");
+    REQUIRE(_960Moves[22] == "c4b5");
+    REQUIRE(_960Moves[23] == "e8a8");
+}
+
+TEST_CASE("Convert to chess960 #3b (black)") {
+    fairystockfish::init();
+    std::vector<std::string> moves{
+        "e2e4", "b7b6", "b1c3", "c8b7",
+        "d2d4", "g7g6", "g1f3", "f8g7",
+        "f3g5", "g8f6", "e4e5", "b8c6",
+        "b2b3", "d7d6", "e5f6", "g7f6",
+        "f1c4", "e7e6", "c3e4", "d8e7",
+        "e4f6", "e7f6", "c4b5", "e8g8"
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("5check", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0] == "e2e4");
+    REQUIRE(_960Moves[1] == "b7b6");
+    REQUIRE(_960Moves[2] == "b1c3");
+    REQUIRE(_960Moves[3] == "c8b7");
+    REQUIRE(_960Moves[4] == "d2d4");
+    REQUIRE(_960Moves[5] == "g7g6");
+    REQUIRE(_960Moves[6] == "g1f3");
+    REQUIRE(_960Moves[7] == "f8g7");
+    REQUIRE(_960Moves[8] == "f3g5");
+    REQUIRE(_960Moves[9] == "g8f6");
+    REQUIRE(_960Moves[10] == "e4e5");
+    REQUIRE(_960Moves[11] == "b8c6");
+    REQUIRE(_960Moves[12] == "b2b3");
+    REQUIRE(_960Moves[13] == "d7d6");
+    REQUIRE(_960Moves[14] == "e5f6");
+    REQUIRE(_960Moves[15] == "g7f6");
+    REQUIRE(_960Moves[16] == "f1c4");
+    REQUIRE(_960Moves[17] == "e7e6");
+    REQUIRE(_960Moves[18] == "c3e4");
+    REQUIRE(_960Moves[19] == "d8e7");
+    REQUIRE(_960Moves[20] == "e4f6");
+    REQUIRE(_960Moves[21] == "e7f6");
+    REQUIRE(_960Moves[22] == "c4b5");
+    REQUIRE(_960Moves[23] == "e8h8");
+}
+
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
 TEST_CASE("Shogi Repetition") {

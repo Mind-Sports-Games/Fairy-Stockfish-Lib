@@ -90,7 +90,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.12"; }
+std::string fairystockfish::version() { return "v0.0.13"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -248,6 +248,16 @@ std::vector<std::string> fairystockfish::to960Uci(
             pos = pos.makeMoves({"e1g1"});
             pos960 = pos960.makeMoves({"e1h1"});
             newMoves.push_back("e1h1");
+        } else if (move == "e8c8") {
+            // We know we have to translate these, so do it.
+            pos = pos.makeMoves({"e8c8"});
+            pos960 = pos960.makeMoves({"e8a8"});
+            newMoves.push_back("e8a8");
+        } else if (move == "e8g8") {
+            // We know we have to translate these, so do it.
+            pos = pos.makeMoves({"e8g8"});
+            pos960 = pos960.makeMoves({"e8h8"});
+            newMoves.push_back("e8h8");
         } else {
             // Otherwise play the same move and record it.
             pos = pos.makeMoves({move});
