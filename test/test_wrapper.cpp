@@ -720,6 +720,32 @@ TEST_CASE("Convert to chess960") {
     REQUIRE(_960Moves[20] == "e1h1");
 }
 
+TEST_CASE("Convert to chess960 #2") {
+    fairystockfish::init();
+    std::vector<std::string> moves{
+        "e2e4", "b8c6", "b2b3", "e7e6", "c1b2", "d8h4", "b1c3",
+        "h4e7", "d1f3", "c6d4", "f1b5", "d4f3", "g1f3", "a7a6",
+        "e1g1"
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("5check", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0]  == "e2e4");
+    REQUIRE(_960Moves[1]  == "b8c6");
+    REQUIRE(_960Moves[2]  == "b2b3");
+    REQUIRE(_960Moves[3]  == "e7e6");
+    REQUIRE(_960Moves[4]  == "c1b2");
+    REQUIRE(_960Moves[5]  == "d8h4");
+    REQUIRE(_960Moves[6]  == "b1c3");
+    REQUIRE(_960Moves[7]  == "h4e7");
+    REQUIRE(_960Moves[8]  == "d1f3");
+    REQUIRE(_960Moves[9]  == "c6d4");
+    REQUIRE(_960Moves[10] == "f1b5");
+    REQUIRE(_960Moves[11] == "d4f3");
+    REQUIRE(_960Moves[12] == "g1f3");
+    REQUIRE(_960Moves[13] == "a7a6");
+    REQUIRE(_960Moves[14] == "e1h1");
+}
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
 TEST_CASE("Shogi Repetition") {
