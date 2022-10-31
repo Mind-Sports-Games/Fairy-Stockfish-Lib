@@ -853,6 +853,29 @@ TEST_CASE("Convert to chess960 #3b (black)") {
     REQUIRE(_960Moves[23] == "e8h8");
 }
 
+TEST_CASE("Test valid rook moves don't get translated") {
+    fairystockfish::init();
+    std::vector<std::string> moves{
+        "e2e4", "b8a6", "g1f3", "a6b8",
+        "f1d3", "b8a6", "e1e2", "a6b8",
+        "h1e1", "b8a6", "e1g1",
+    };
+    std::vector<std::string> _960Moves = fairystockfish::to960Uci("5check", moves);
+
+    REQUIRE(moves.size()  == _960Moves.size());
+    REQUIRE(_960Moves[0] == "e2e4");
+    REQUIRE(_960Moves[1] == "b8a6");
+    REQUIRE(_960Moves[2] == "g1f3");
+    REQUIRE(_960Moves[3] == "a6b8");
+    REQUIRE(_960Moves[4] == "f1d3");
+    REQUIRE(_960Moves[5] == "b8a6");
+    REQUIRE(_960Moves[6] == "e1e2");
+    REQUIRE(_960Moves[7] == "a6b8");
+    REQUIRE(_960Moves[8] == "h1e1");
+    REQUIRE(_960Moves[9] == "b8a6");
+    REQUIRE(_960Moves[10] == "e1g1");
+}
+
 TEST_CASE("Perft") {
     bool debug = false;
     fairystockfish::init();

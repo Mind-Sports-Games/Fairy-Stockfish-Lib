@@ -198,6 +198,12 @@ std::vector<std::string> fairystockfish::to960Uci(
     std::string variantName,
     std::vector<std::string> moves
 ) {
+// Idea: Assume only castling moves have different notation, right?
+// Detect when we have differences, test that the 960 moves are castling moves
+// AKA the piece on their source square is a king, and target square is a rook
+// Then if the target rook file is in {a,b,c,d} take the first of the 960 moves
+// else if the target rook file is in {e,f,g,h} take the last of the 960 moves
+//
     Position pos(variantName, false);
     Position pos960(variantName, true);
     std::vector<std::string> newMoves;
@@ -238,26 +244,55 @@ std::vector<std::string> fairystockfish::to960Uci(
             pos = pos.makeMoves({onlyNormalUci.front()});
             pos960 = pos960.makeMoves({onlyIn960.front()});
             newMoves.push_back(onlyIn960.front());
-        } else if (move == "e1c1") {
-            // We know we have to translate these, so do it.
-            pos = pos.makeMoves({"e1c1"});
-            pos960 = pos960.makeMoves({"e1a1"});
-            newMoves.push_back("e1a1");
-        } else if (move == "e1g1") {
-            // We know we have to translate these, so do it.
-            pos = pos.makeMoves({"e1g1"});
-            pos960 = pos960.makeMoves({"e1h1"});
-            newMoves.push_back("e1h1");
-        } else if (move == "e8c8") {
-            // We know we have to translate these, so do it.
-            pos = pos.makeMoves({"e8c8"});
-            pos960 = pos960.makeMoves({"e8a8"});
-            newMoves.push_back("e8a8");
-        } else if (move == "e8g8") {
-            // We know we have to translate these, so do it.
-            pos = pos.makeMoves({"e8g8"});
-            pos960 = pos960.makeMoves({"e8h8"});
-            newMoves.push_back("e8h8");
+        } else if (
+            onlyIn960.size() == 2 &&
+            onlyNormalUci.size() == 2 &&
+            (onlyNormalUci[0] == move || onlyNormalUci[1] == move)
+        ) {
+            // To start, we check the incoming moves source and target file
+            // Because the 960 moves are sorted, and because the kings starting
+            // square is the same in both, they will be sorted according to the
+            // file of the target square. Which means queen side castling is first
+            // and king side castling is second
+
+            // Also, the incoming move will also have a similar sorting
+            // So we can use that to determine which of the two chess960 moves are
+            // valid
+            auto startSquare = move.substr(0, 2);
+            auto endSquare = move.substr(2, 2);
+            std::string translatedMove = move;
+            if (startSquare[0] < endSquare[0]) { // king side castle
+                translatedMove = onlyIn960[1];
+            } else { // queen side castle
+                translatedMove = onlyIn960[0];
+            }
+
+            // Modify the start/end squares to be based on our
+            // 960 move and verify the 960 move is a castling.
+            // The 960 notation will always use a starting square
+            // that has a king on it and a target square that has
+            // a rook on it
+            startSquare = translatedMove.substr(0, 2);
+            endSquare = translatedMove.substr(2, 2);
+            auto pieceMap = pos960.piecesOnBoard();
+            auto startPiece = pieceMap.find(startSquare);
+            auto endPiece = pieceMap.find(endSquare);
+            bool isCastle = (
+                startPiece != pieceMap.end()
+                && startPiece->second.pieceInfo().name() == "king"
+                && endPiece != pieceMap.end()
+                && endPiece->second.pieceInfo().name() == "rook"
+            );
+            if (isCastle) {
+                pos = pos.makeMoves({move});
+                pos960 = pos960.makeMoves({translatedMove});
+                newMoves.push_back(translatedMove);
+            } else {
+                // Otherwise play the same move and record it.
+                pos = pos.makeMoves({move});
+                pos960 = pos960.makeMoves({move});
+                newMoves.push_back(move);
+            }
         } else {
             // Otherwise play the same move and record it.
             pos = pos.makeMoves({move});
