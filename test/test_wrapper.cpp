@@ -1,6 +1,7 @@
 #include <doctest.h>
 
 #include <iostream>
+#include <iomanip>
 
 #include "types.h"
 #include "fairystockfish.h"
@@ -850,6 +851,56 @@ TEST_CASE("Convert to chess960 #3b (black)") {
     REQUIRE(_960Moves[21] == "e7f6");
     REQUIRE(_960Moves[22] == "c4b5");
     REQUIRE(_960Moves[23] == "e8h8");
+}
+
+TEST_CASE("Perft") {
+    bool debug = false;
+    fairystockfish::init();
+    std::string initialFEN = fairystockfish::initialFen("chess");
+    auto position = fairystockfish::Position("chess");
+    std::function<unsigned int(fairystockfish::Position const &, unsigned int)> perft;
+
+    perft = [&perft](fairystockfish::Position const &pos, unsigned int depth) -> unsigned int {
+        if (depth == 1) {
+            return pos.getLegalMoves().size();
+        }
+        unsigned int moveCount = 0;
+        for (auto const &move: pos.getLegalMoves()) {
+            moveCount += perft(pos.makeMoves({move}), depth-1);
+        }
+        return moveCount;
+    };
+
+    auto start = std::chrono::system_clock::now();
+    REQUIRE(perft(position, 2) == 400);
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    if (debug) std::cout << "finished perft(2) @ " << std::ctime(&end_time)
+              << "elapsed time: " << std::fixed << std::setprecision(18) << elapsed_seconds.count() << "s"
+              << std::endl;
+
+    start = std::chrono::system_clock::now();
+    REQUIRE(perft(position, 4) == 197281);
+    end = std::chrono::system_clock::now();
+
+    elapsed_seconds = end-start;
+    end_time = std::chrono::system_clock::to_time_t(end);
+
+    if (debug) std::cout << "finished perft(4) @ " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s"
+              << std::endl;
+
+    start = std::chrono::system_clock::now();
+    REQUIRE(perft(position, 5) == 4865609);
+    end = std::chrono::system_clock::now();
+
+    elapsed_seconds = end-start;
+    if (debug) std::cout << "finished perft(5) @ " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s"
+              << std::endl;
 }
 
 /*
