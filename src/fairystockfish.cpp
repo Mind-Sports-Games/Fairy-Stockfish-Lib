@@ -208,6 +208,14 @@ std::vector<std::string> fairystockfish::to960Uci(
 // Example differences: e8g8 -> e8h8
 // Example differences: e1c1 -> e1a1
 // Example differences: e8c8 -> e8a8
+    const SF::Variant *variant = SF::variants.find(variantName)->second;
+
+    // If the variant doesn't support castling, then there is no
+    // translation to be done.
+    if (variant && !variant->castling) {
+        return moves;
+    }
+
     Position pos(variantName, false);
     Position pos960(variantName, true);
     std::vector<std::string> newMoves;
