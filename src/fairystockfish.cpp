@@ -90,7 +90,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.13"; }
+std::string fairystockfish::version() { return "v0.0.14"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -204,6 +204,10 @@ std::vector<std::string> fairystockfish::to960Uci(
 // Then if the target rook file is in {a,b,c,d} take the first of the 960 moves
 // else if the target rook file is in {e,f,g,h} take the last of the 960 moves
 //
+// Example differences: e1g1 -> e1h1
+// Example differences: e8g8 -> e8h8
+// Example differences: e1c1 -> e1a1
+// Example differences: e8c8 -> e8a8
     Position pos(variantName, false);
     Position pos960(variantName, true);
     std::vector<std::string> newMoves;
