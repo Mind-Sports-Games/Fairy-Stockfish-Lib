@@ -373,13 +373,13 @@ namespace fairystockfish {
             /// @return The map from UCI square notation to piece id integers.
             ///
             ///------------------------------------------------------------------------------
-            std::map<std::string, Piece> piecesOnBoard() const;
+            std::map<std::string, Piece> piecesOnUciBoard() const;
 
             ///------------------------------------------------------------------------------
             /// Returns a piece map for a given position and variant.
             /// @return The map from square integer values to piece values.
             ///------------------------------------------------------------------------------
-            std::map<int, Piece> piecesOnIntBoard() const;
+            std::map<int, Piece> piecesOnBoard() const;
 
             ///------------------------------------------------------------------------------
             /// Returns pieces in hand. It returns a single vector where pieces can be of

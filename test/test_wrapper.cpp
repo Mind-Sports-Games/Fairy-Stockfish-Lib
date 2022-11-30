@@ -285,7 +285,7 @@ TEST_CASE("Promoted Pieces") {
     std::vector<std::string> moves{"a6a7+"};
     position = position.makeMoves(moves);
     std::string newFen = position.getFEN();
-    std::map<std::string, fairystockfish::Piece> pieces = position.piecesOnBoard();
+    std::map<std::string, fairystockfish::Piece> pieces = position.piecesOnUciBoard();
 
     auto p = pieces.find("a7");
     if (p == pieces.end()) {

@@ -286,7 +286,7 @@ std::vector<std::string> fairystockfish::to960Uci(
             // a rook on it
             startSquare = translatedMove.substr(0, 2);
             endSquare = translatedMove.substr(2, 2);
-            auto pieceMap = pos960.piecesOnBoard();
+            auto pieceMap = pos960.piecesOnUciBoard();
             auto startPiece = pieceMap.find(startSquare);
             auto endPiece = pieceMap.find(endSquare);
             bool isCastle = (
@@ -505,7 +505,7 @@ bool fairystockfish::Position::hasRepeated() const {
     return position->has_repeated();
 }
 
-std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
+std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnUciBoard() const {
     std::map<std::string, Piece> retVal;
     const Stockfish::Variant *v = Stockfish::variants[variant];
 
@@ -533,7 +533,7 @@ std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnB
     return retVal;
 }
 
-std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnIntBoard() const {
+std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
     std::map<int, Piece> retVal;
     const Stockfish::Variant *v = Stockfish::variants[variant];
 
