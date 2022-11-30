@@ -318,15 +318,13 @@ std::vector<std::string> fairystockfish::to960Uci(
 void fairystockfish::Position::init(std::string startingFen, bool _isChess960) {
     const Stockfish::Variant* v = Stockfish::variants.find(std::string(variant))->second;
 
-    ListOfImmutableStatesPtr inputStates = std::make_shared<std::list<StateInfoPtr>>();
-    MutableStateInfoPtr firstState = std::make_shared<Stockfish::StateInfo>();
-    inputStates->push_back(firstState);
+    auto newState = std::make_shared<StateNode>();
 
     std::shared_ptr<Stockfish::Position> p =
         std::make_shared<Stockfish::Position>();
-    p->set(v, startingFen, isChess960, firstState.get(), Stockfish::Threads.main());
+    p->set(v, startingFen, isChess960, &newState->stateInfo, Stockfish::Threads.main());
     position = p;
-    states = std::move(inputStates);
+    state = newState;
 }
 
 fairystockfish::Position::Position(
@@ -336,7 +334,6 @@ fairystockfish::Position::Position(
     : variant(_variant)
     , isChess960(_isChess960)
     , position{}
-    , states{}
 {
     // TODO: make this safer (throw an exception?)
     const Stockfish::Variant* v = Stockfish::variants.find(variant)->second;
@@ -351,7 +348,6 @@ fairystockfish::Position::Position(
     : variant(_variant)
     , isChess960(_isChess960)
     , position{}
-    , states{}
 {
     init(startingFen, _isChess960);
 }
@@ -362,8 +358,8 @@ fairystockfish::Position::SFPositionPtr fairystockfish::Position::copyPosition(
     // This depends on the idea that the only pointers that a position has are
     // the stateinfo (which we will update) and the thread pointer (which is always
     // the same for us), so we can safely bitwise copy the position.
-    MutableStateInfoPtr firstState = std::make_shared<Stockfish::StateInfo>();
-    states->push_back(firstState);
+    // MutableStateInfoPtr firstState = std::make_shared<Stockfish::StateInfo>();
+    // states->push_back(firstState);
     std::shared_ptr<Stockfish::Position> p =
         std::make_shared<Stockfish::Position>();
     std::memcpy(
@@ -390,20 +386,21 @@ Stockfish::Notation fairystockfish::Position::fromOurNotation(fairystockfish::No
 }
 
 fairystockfish::Position fairystockfish::Position::makeMoves(MoveList const &uciMoves) const {
+    Position newPosition = *this;
     SFPositionPtr p = copyPosition(position);
+    newPosition.position = p;
 
     // Make the moves in the given position
     for (auto moveStr : uciMoves) {
         Stockfish::Move m = Stockfish::UCI::to_move(*p, moveStr);
         if (m == Stockfish::MOVE_NONE) throw std::runtime_error("Invalid Move: '" + moveStr + "'");
         // do the move
-        MutableStateInfoPtr newState = std::make_shared<Stockfish::StateInfo>();
-        states->push_back(newState);
-        p->do_move(m, *newState);
+        auto newState = std::make_shared<StateNode>();
+        newState->previous = newPosition.state;
+        newPosition.state = newState;
+        p->do_move(m, newState->stateInfo);
     }
 
-    Position newPosition = *this;
-    newPosition.position = p;
     return newPosition;
 }
 
