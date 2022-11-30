@@ -536,6 +536,30 @@ std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnB
     return retVal;
 }
 
+std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnIntBoard() const {
+    std::map<int, Piece> retVal;
+    const Stockfish::Variant *v = Stockfish::variants[variant];
+
+    for(Stockfish::File f = Stockfish::File::FILE_A; f <= v->maxFile; ++f) {
+        for(Stockfish::Rank r = Stockfish::Rank::RANK_1; r <= v->maxRank; ++r) {
+            Stockfish::Square s = make_square(f, r);
+            Stockfish::Piece unpromotedPiece = position->unpromoted_piece_on(s);
+            Stockfish::Piece p = position->piece_on(s);
+            bool promoted = false;
+            if (unpromotedPiece) {
+                p = unpromotedPiece;
+                promoted = true;
+            }
+            if (p == Stockfish::Piece::NO_PIECE) continue;
+            Stockfish::PieceType pt = type_of(p);
+            Stockfish::Color c = color_of(p);
+
+            retVal.insert({s, fairystockfish::Piece(pt, c, promoted)});
+        }
+    }
+    return retVal;
+}
+
 std::vector<fairystockfish::Piece> fairystockfish::Position::piecesInHand() const {
     std::vector<Piece> retVal;
     for (int _c = static_cast<int>(Stockfish::Color::WHITE);

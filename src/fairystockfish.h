@@ -78,6 +78,7 @@ namespace fairystockfish {
             bool isBlack() const {
                 return _color == Stockfish::Color::BLACK;
             }
+            int id() const { return _pieceInfo.id(); };
     };
 
     ///------------------------------------------------------------------------------
@@ -368,6 +369,12 @@ namespace fairystockfish {
             ///
             ///------------------------------------------------------------------------------
             std::map<std::string, Piece> piecesOnBoard() const;
+
+            ///------------------------------------------------------------------------------
+            /// Returns a piece map for a given position and variant.
+            /// @return The map from square integer values to piece values.
+            ///------------------------------------------------------------------------------
+            std::map<int, Piece> piecesOnIntBoard() const;
 
             ///------------------------------------------------------------------------------
             /// Returns pieces in hand. It returns a single vector where pieces can be of
