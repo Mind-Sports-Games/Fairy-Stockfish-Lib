@@ -78,6 +78,7 @@ namespace fairystockfish {
             bool isBlack() const {
                 return _color == Stockfish::Color::BLACK;
             }
+            int id() const { return _pieceInfo.id(); };
     };
 
     ///------------------------------------------------------------------------------
@@ -204,6 +205,7 @@ namespace fairystockfish {
 
 
         private:
+
             std::shared_ptr<const Stockfish::Position> position;
             // We never give this deque to FairyStockfish proper,
             // instead, we only ever give it the address of one of the state infos.
@@ -211,7 +213,11 @@ namespace fairystockfish {
             // We'll be pretending that we have value semantics, to achieve this
             // we're going to use a linked_list of shared_ptrs<const T> of StateInfo
             // This list is
-            mutable ListOfImmutableStatesPtr states = std::make_shared<std::list<StateInfoPtr>>();
+            struct StateNode {
+                std::shared_ptr<StateNode> previous = nullptr;
+                Stockfish::StateInfo stateInfo;
+            };
+            mutable std::shared_ptr<StateNode> state = nullptr;
 
             // Copy the position
             // NOTE: This depends some things that FairyStockfish may break
@@ -367,7 +373,13 @@ namespace fairystockfish {
             /// @return The map from UCI square notation to piece id integers.
             ///
             ///------------------------------------------------------------------------------
-            std::map<std::string, Piece> piecesOnBoard() const;
+            std::map<std::string, Piece> piecesOnUciBoard() const;
+
+            ///------------------------------------------------------------------------------
+            /// Returns a piece map for a given position and variant.
+            /// @return The map from square integer values to piece values.
+            ///------------------------------------------------------------------------------
+            std::map<int, Piece> piecesOnBoard() const;
 
             ///------------------------------------------------------------------------------
             /// Returns pieces in hand. It returns a single vector where pieces can be of
