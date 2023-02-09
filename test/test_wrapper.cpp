@@ -925,6 +925,11 @@ TEST_CASE("Perft") {
               << "elapsed time: " << elapsed_seconds.count() << "s"
               << std::endl;
 }
+TEST_CASE("fairystockfish variant setup stuff") {
+    fairystockfish::init();
+    std::string initialFEN = fairystockfish::initialFen("amazons");
+    REQUIRE(initialFEN == "3q2q3/10/10/q8q/10/10/Q8Q/10/10/3Q2Q3[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppppppppppppppppp] w - - 0 1");
+}
 
 /*
 // TODO: this test is failing, but we're just trying to figure it out anyways.
