@@ -74,11 +74,13 @@ void fairystockfish::init() {
     SF::pieceMap.init();
     SF::variants.init();
     SF::UCI::init(SF::Options);
+    SF::Tune::init();
     SF::PSQT::init(SF::variants.find(SF::Options["UCI_Variant"])->second);
     SF::Bitboards::init();
     SF::Position::init();
     SF::Bitbases::init();
     SF::Search::init();
+    SF::Endgames::init();
     SF::Threads.set(SF::Options["Threads"]);
     SF::Search::clear(); // After threads are up
 
@@ -87,6 +89,8 @@ void fairystockfish::init() {
         // Initialize the variant.
         SF::UCI::init_variant(variant);
     }
+
+    SF::UCI::init_variant(SF::variants.find("amazons")->second);
 }
 
 // TODO: make it so that the version number comes from compile time settings.
@@ -325,6 +329,7 @@ void fairystockfish::Position::init(std::string startingFen, bool _isChess960) {
     p->set(v, startingFen, isChess960, &newState->stateInfo, Stockfish::Threads.main());
     position = p;
     state = newState;
+
 }
 
 fairystockfish::Position::Position(
