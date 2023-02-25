@@ -533,8 +533,8 @@ std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnU
     return retVal;
 }
 
-std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
-    std::map<int, Piece> retVal;
+std::map<fairystockfish::Square, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
+    std::map<Square, Piece> retVal;
     const Stockfish::Variant *v = Stockfish::variants[variant];
 
     for(Stockfish::File f = Stockfish::File::FILE_A; f <= v->maxFile; ++f) {
@@ -551,7 +551,7 @@ std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() c
             Stockfish::PieceType pt = type_of(p);
             Stockfish::Color c = color_of(p);
 
-            retVal.insert({s, fairystockfish::Piece(pt, c, promoted)});
+            retVal.insert({static_cast<Square>(s), fairystockfish::Piece(pt, c, promoted)});
         }
     }
     return retVal;
