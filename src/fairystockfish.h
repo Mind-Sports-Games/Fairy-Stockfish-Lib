@@ -42,7 +42,7 @@ namespace fairystockfish {
       SQUARE_ZERO = 0,
       SQUARE_NB = 120,
       SQUARE_BIT_MASK = 127,
-      SQ_MAX = SQUARE_NB - 1,
+      SQ_MAX = 119, // SQUARE_NB - 1 NOTE: this has to be hard coded due to javacpp (or my lack of knowledge of javacpp)
       SQUARE_NB_CHESS = 64,
       SQUARE_NB_SHOGI = 81,
     };
