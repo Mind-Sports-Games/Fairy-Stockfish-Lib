@@ -94,7 +94,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.17"; }
+std::string fairystockfish::version() { return "v0.0.18"; }
 
 void fairystockfish::info() {
     // Now print out some information
