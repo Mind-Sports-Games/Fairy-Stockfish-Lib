@@ -84,12 +84,7 @@ void fairystockfish::init() {
     SF::Threads.set(SF::Options["Threads"]);
     SF::Search::clear(); // After threads are up
 
-    // Initialize all variants.
-    for (const auto &[name, variant] : SF::variants) {
-        // Initialize the variant.
-        SF::UCI::init_variant(variant);
-    }
-
+    // Initialize only amazons. Initializing the rest is pointless.
     SF::UCI::init_variant(SF::variants.find("amazons")->second);
 }
 
