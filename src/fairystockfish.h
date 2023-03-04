@@ -25,6 +25,27 @@
 namespace fairystockfish {
     using FenValidation = Stockfish::FEN::FenValidation;
 
+    // Copied from the types.h
+    enum Square : std::uint8_t {
+      SQ_A1, SQ_B1, SQ_C1, SQ_D1, SQ_E1, SQ_F1, SQ_G1, SQ_H1, SQ_I1, SQ_J1, SQ_K1, SQ_L1,
+      SQ_A2, SQ_B2, SQ_C2, SQ_D2, SQ_E2, SQ_F2, SQ_G2, SQ_H2, SQ_I2, SQ_J2, SQ_K2, SQ_L2,
+      SQ_A3, SQ_B3, SQ_C3, SQ_D3, SQ_E3, SQ_F3, SQ_G3, SQ_H3, SQ_I3, SQ_J3, SQ_K3, SQ_L3,
+      SQ_A4, SQ_B4, SQ_C4, SQ_D4, SQ_E4, SQ_F4, SQ_G4, SQ_H4, SQ_I4, SQ_J4, SQ_K4, SQ_L4,
+      SQ_A5, SQ_B5, SQ_C5, SQ_D5, SQ_E5, SQ_F5, SQ_G5, SQ_H5, SQ_I5, SQ_J5, SQ_K5, SQ_L5,
+      SQ_A6, SQ_B6, SQ_C6, SQ_D6, SQ_E6, SQ_F6, SQ_G6, SQ_H6, SQ_I6, SQ_J6, SQ_K6, SQ_L6,
+      SQ_A7, SQ_B7, SQ_C7, SQ_D7, SQ_E7, SQ_F7, SQ_G7, SQ_H7, SQ_I7, SQ_J7, SQ_K7, SQ_L7,
+      SQ_A8, SQ_B8, SQ_C8, SQ_D8, SQ_E8, SQ_F8, SQ_G8, SQ_H8, SQ_I8, SQ_J8, SQ_K8, SQ_L8,
+      SQ_A9, SQ_B9, SQ_C9, SQ_D9, SQ_E9, SQ_F9, SQ_G9, SQ_H9, SQ_I9, SQ_J9, SQ_K9, SQ_L9,
+      SQ_A10, SQ_B10, SQ_C10, SQ_D10, SQ_E10, SQ_F10, SQ_G10, SQ_H10, SQ_I10, SQ_J10, SQ_K10, SQ_L10,
+      SQ_NONE,
+
+      SQUARE_ZERO = 0,
+      SQUARE_NB = 120,
+      SQUARE_BIT_MASK = 127,
+      SQ_MAX = 119, // SQUARE_NB - 1 NOTE: this has to be hard coded due to javacpp (or my lack of knowledge of javacpp)
+      SQUARE_NB_CHESS = 64,
+      SQUARE_NB_SHOGI = 81,
+    };
 
     // Copied from the apiutil.h
     enum Notation : std::uint8_t {
@@ -379,7 +400,7 @@ namespace fairystockfish {
             /// Returns a piece map for a given position and variant.
             /// @return The map from square integer values to piece values.
             ///------------------------------------------------------------------------------
-            std::map<int, Piece> piecesOnBoard() const;
+            std::map<Square, Piece> piecesOnBoard() const;
 
             ///------------------------------------------------------------------------------
             /// Returns pieces in hand. It returns a single vector where pieces can be of

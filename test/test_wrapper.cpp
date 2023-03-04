@@ -925,10 +925,22 @@ TEST_CASE("Perft") {
               << "elapsed time: " << elapsed_seconds.count() << "s"
               << std::endl;
 }
-TEST_CASE("fairystockfish variant setup stuff") {
+
+TEST_CASE("fairystockfish amazons") {
     fairystockfish::init();
     std::string initialFEN = fairystockfish::initialFen("amazons");
-    REQUIRE(initialFEN == "3q2q3/10/10/q8q/10/10/Q8Q/10/10/3Q2Q3[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppppppppppppppppp] w - - 0 1");
+    REQUIRE(initialFEN == "3q2q3/10/10/q8q/10/10/Q8Q/10/10/3Q2Q3 w - - 0 1");
+/*
+setoption name UCI_Variant value amazons
+position startpos
+go perft 1
+*/
+
+    SUBCASE("there must be 2176 legal moves") {
+        auto position = fairystockfish::Position("amazons", "startpos");
+        auto result = position.getLegalMoves();
+        REQUIRE(result.size() == 2176);
+    }
 }
 
 /*

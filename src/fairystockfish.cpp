@@ -74,23 +74,22 @@ void fairystockfish::init() {
     SF::pieceMap.init();
     SF::variants.init();
     SF::UCI::init(SF::Options);
+    SF::Tune::init();
     SF::PSQT::init(SF::variants.find(SF::Options["UCI_Variant"])->second);
     SF::Bitboards::init();
     SF::Position::init();
     SF::Bitbases::init();
     SF::Search::init();
+    SF::Endgames::init();
     SF::Threads.set(SF::Options["Threads"]);
     SF::Search::clear(); // After threads are up
 
-    // Initialize all variants.
-    for (const auto &[name, variant] : SF::variants) {
-        // Initialize the variant.
-        SF::UCI::init_variant(variant);
-    }
+    // Initialize only amazons. Initializing the rest is pointless.
+    SF::UCI::init_variant(SF::variants.find("amazons")->second);
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.17"; }
+std::string fairystockfish::version() { return "v0.0.18"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -325,6 +324,7 @@ void fairystockfish::Position::init(std::string startingFen, bool _isChess960) {
     p->set(v, startingFen, isChess960, &newState->stateInfo, Stockfish::Threads.main());
     position = p;
     state = newState;
+
 }
 
 fairystockfish::Position::Position(
@@ -533,8 +533,8 @@ std::map<std::string, fairystockfish::Piece> fairystockfish::Position::piecesOnU
     return retVal;
 }
 
-std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
-    std::map<int, Piece> retVal;
+std::map<fairystockfish::Square, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() const {
+    std::map<Square, Piece> retVal;
     const Stockfish::Variant *v = Stockfish::variants[variant];
 
     for(Stockfish::File f = Stockfish::File::FILE_A; f <= v->maxFile; ++f) {
@@ -551,7 +551,7 @@ std::map<int, fairystockfish::Piece> fairystockfish::Position::piecesOnBoard() c
             Stockfish::PieceType pt = type_of(p);
             Stockfish::Color c = color_of(p);
 
-            retVal.insert({s, fairystockfish::Piece(pt, c, promoted)});
+            retVal.insert({static_cast<Square>(s), fairystockfish::Piece(pt, c, promoted)});
         }
     }
     return retVal;
