@@ -403,6 +403,13 @@ namespace fairystockfish {
             std::map<Square, Piece> piecesOnBoard() const;
 
             ///------------------------------------------------------------------------------
+            /// Returns a map for a given position that maps squares to walls
+            /// @return The map from square integer values to a boolean indicating if
+            ///         there is a wall
+            ///------------------------------------------------------------------------------
+            std::map<Square, bool> wallsOnBoard() const;
+
+            ///------------------------------------------------------------------------------
             /// Returns pieces in hand. It returns a single vector where pieces can be of
             /// either color. So it's up to the caller to filter them
             ///

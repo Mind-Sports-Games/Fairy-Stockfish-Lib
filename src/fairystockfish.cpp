@@ -89,7 +89,7 @@ void fairystockfish::init() {
 }
 
 // TODO: make it so that the version number comes from compile time settings.
-std::string fairystockfish::version() { return "v0.0.18"; }
+std::string fairystockfish::version() { return "v0.0.19"; }
 
 void fairystockfish::info() {
     // Now print out some information
@@ -566,6 +566,22 @@ std::vector<fairystockfish::Piece> fairystockfish::Position::piecesInHand() cons
             size_t numInHand = size_t(position->count_in_hand(c, id));
             for(size_t i = 0; i < numInHand; ++i) {
                 retVal.push_back(Piece(id, c));
+            }
+        }
+    }
+    return retVal;
+}
+
+std::map<fairystockfish::Square, bool>
+fairystockfish::Position::wallsOnBoard() const {
+    std::map<Square, bool> retVal;
+    const Stockfish::Variant *v = Stockfish::variants[variant];
+
+    for (Stockfish::File f = Stockfish::File::FILE_A; f <= v->maxFile; ++f) {
+        for (Stockfish::Rank r = Stockfish::Rank::RANK_1; r <= v->maxRank; ++r) {
+            Stockfish::Square s = make_square(f, r);
+            if ((position->pieces() & s) && position->empty(s)) {
+                retVal.insert({static_cast<Square>(s), true});
             }
         }
     }

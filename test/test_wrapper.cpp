@@ -941,6 +941,22 @@ go perft 1
         auto result = position.getLegalMoves();
         REQUIRE(result.size() == 2176);
     }
+
+    SUBCASE("Generate fen after parsing from fen") {
+        std::vector<std::string> moves{"g1j1,j1i2"};
+        auto position = fairystockfish::Position("amazons", "startpos");
+        position = position.makeMoves(moves);
+
+        std::string targetFen = "3q2q3/10/10/q8q/10/10/Q8Q/10/8*1/3Q5Q b - - 1 1";
+        REQUIRE_EQ(targetFen, position.getFEN());
+
+        auto positionFromFen = fairystockfish::Position("amazons", targetFen);
+        REQUIRE_EQ(targetFen, positionFromFen.getFEN());
+
+        auto wallsOnBoard = positionFromFen.wallsOnBoard();
+        fairystockfish::Square i2 = fairystockfish::Square::SQ_I2;
+        REQUIRE(wallsOnBoard.find(i2) != wallsOnBoard.end());
+  }
 }
 
 /*
