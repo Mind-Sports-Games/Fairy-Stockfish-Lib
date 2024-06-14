@@ -965,3 +965,56 @@ fairystockfish::gameResult(variant, initialFEN, moves) << std::endl;
     }
 
 }*/
+
+TEST_CASE("minibreakthrough") {
+  fairystockfish::init();
+  fairystockfish::loadVariantConfig(R"variants(
+[breakthrough5:breakthrough]
+maxFile = 5
+maxRank = 5
+startFen = ppppp/ppppp/5/PPPPP/PPPPP w 0 1
+whiteFlag = *5
+blackFlag = *1
+    )variants");
+
+  fairystockfish::Position startingPos("breakthrough5");
+
+  SUBCASE("The fastest win") {
+    auto pos = startingPos;
+
+    {
+      // The starting position should have legal moves
+      auto legalMoves = pos.getLegalMoves();
+      REQUIRE(legalMoves.size() != 0);
+      // And should not be the end of the game
+      auto [_, isEnd] = pos.isImmediateGameEnd();
+      REQUIRE(!isEnd);
+    }
+
+    {
+      std::vector<std::string> moves = {"a2b3", "e4d3", "b3a4", "d3e2"};
+      pos = pos.makeMoves(moves);
+
+      // Before we play the final move, there should be legal moves
+      auto legalMoves = pos.getLegalMoves();
+      REQUIRE(legalMoves.size() != 0);
+      // and stil no mate
+      auto [_, isEnd] = pos.isImmediateGameEnd();
+      REQUIRE(!isEnd);
+    }
+
+    {
+      std::vector<std::string> finishingMoves = {"a4b5"};
+      pos = pos.makeMoves(finishingMoves);
+
+      // After we play the final move, there should be no legal moves
+      auto legalMoves = pos.getLegalMoves();
+      REQUIRE(legalMoves.size() == 0);
+      // and it should be a mate
+      // and stil no mate
+      auto [result, isEnd] = pos.isImmediateGameEnd();
+      REQUIRE(isEnd);
+      REQUIRE(result != -Stockfish::VALUE_MATE);
+    }
+  }
+}
