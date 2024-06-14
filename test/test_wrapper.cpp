@@ -1011,7 +1011,19 @@ blackFlag = *1
       auto legalMoves = pos.getLegalMoves();
       REQUIRE(legalMoves.size() == 0);
       // and it should be a mate
-      // and stil no mate
+      auto [result, isEnd] = pos.isImmediateGameEnd();
+      REQUIRE(isEnd);
+      REQUIRE(result != -Stockfish::VALUE_MATE);
+    }
+    {
+      fairystockfish::Position posFromFen(
+          "breakthrough5", "pPppp/1ppp1/5/1PPPp/PPPPP b - - 0 3");
+
+      // Loading the game from a winning position should result in no
+      // legal moves
+      auto legalMoves = pos.getLegalMoves();
+      REQUIRE(legalMoves.size() == 0);
+      // and it should be a mate
       auto [result, isEnd] = pos.isImmediateGameEnd();
       REQUIRE(isEnd);
       REQUIRE(result != -Stockfish::VALUE_MATE);
