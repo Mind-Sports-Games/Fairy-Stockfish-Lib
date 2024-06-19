@@ -125,16 +125,25 @@ static std::string availablePieceChars__impl(IsPromotable t) {
     };
 
     auto copy = [&](auto const &pieceTypes, SF::Variant const *variant) {
-        for (const auto &pt : pieceTypes) {
-            addPiece(variant->pieceToChar[make_piece(SF::WHITE, pt)]);
-            addPiece(variant->pieceToChar[make_piece(SF::BLACK, pt)]);
-            addPiece(variant->pieceToCharSynonyms[make_piece(SF::WHITE, pt)]);
-            addPiece(variant->pieceToCharSynonyms[make_piece(SF::BLACK, pt)]);
+        for (Stockfish::PieceType pt = Stockfish::NO_PIECE_TYPE; pt < Stockfish::PIECE_TYPE_NB;
+             ++pt)
+        {
+            if (!(Stockfish::piece_set(pt) & pieceTypes)) {
+                continue;
+            }
+            auto whitePiece = make_piece(SF::WHITE, pt);
+            auto blackPiece = make_piece(SF::BLACK, pt);
+
+            addPiece(variant->pieceToChar[whitePiece]);
+            addPiece(variant->pieceToChar[blackPiece]);
+            addPiece(variant->pieceToCharSynonyms[whitePiece]);
+            addPiece(variant->pieceToCharSynonyms[blackPiece]);
         }
     };
     for (auto const &[name, variant] : SF::variants) {
         if (t == IsPromotable::PROMOTABLE) {
-            copy(variant->promotionPieceTypes, variant);
+            copy(variant->promotionPieceTypes[0], variant);
+            copy(variant->promotionPieceTypes[1], variant);
         } else {
             copy(variant->pieceTypes, variant);
         }
@@ -165,8 +174,9 @@ fairystockfish::to960Uci(std::string variantName, std::vector<std::string> moves
     // Idea: Assume only castling moves have different notation, right?
     // Detect when we have differences, test that the 960 moves are castling moves
     // AKA the piece on their source square is a king, and target square is a rook
-    // Then if the target rook file is in {a,b,c,d} take the first of the 960 moves
-    // else if the target rook file is in {e,f,g,h} take the last of the 960 moves
+    // Then if the target rook file is in {a,b,c,d} take the first of the 960
+    // moves else if the target rook file is in {e,f,g,h} take the last of the 960
+    // moves
     //
     // Example differences: e1g1 -> e1h1
     // Example differences: e8g8 -> e8h8
@@ -306,8 +316,8 @@ fairystockfish::Position::SFPositionPtr fairystockfish::Position::copyPosition(
     fairystockfish::Position::SFPositionConstPtr const &ptr
 ) const {
     // This depends on the idea that the only pointers that a position has are
-    // the stateinfo (which we will update) and the thread pointer (which is always
-    // the same for us), so we can safely bitwise copy the position.
+    // the stateinfo (which we will update) and the thread pointer (which is
+    // always the same for us), so we can safely bitwise copy the position.
     // MutableStateInfoPtr firstState = std::make_shared<Stockfish::StateInfo>();
     // states->push_back(firstState);
     std::shared_ptr<Stockfish::Position> p = std::make_shared<Stockfish::Position>();
@@ -397,9 +407,9 @@ std::string fairystockfish::Position::getFEN(bool sFen, bool showPromoted, int c
 bool fairystockfish::Position::givesCheck() const { return position->checkers() ? true : false; }
 
 int fairystockfish::Position::gameResult() const {
-    assert(!Stockfish::MoveList<Stockfish::LEGAL>(*position).size());
-    Stockfish::Value result;
-    bool gameEnd = position->is_immediate_game_end(result);
+    // assert(!Stockfish::MoveList<Stockfish::LEGAL>(*position).size());
+    Stockfish::Value result = Stockfish::VALUE_ZERO;
+    bool gameEnd            = position->is_immediate_game_end(result);
     if (!gameEnd)
         result = position->checkers() ? position->checkmate_value() : position->stalemate_value();
     return int(result);

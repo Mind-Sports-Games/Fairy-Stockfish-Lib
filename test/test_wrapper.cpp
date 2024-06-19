@@ -47,8 +47,8 @@ TEST_CASE("fairystockfish variant setup stuff") {
             auto result = position.isOptionalGameEnd();
             REQUIRE(std::get<0>(result) == false);
             // TODO: this triggers an assert right now
-            // auto gameResult = fairystockfish::gameResult(variantName, initialFEN, {});
-            // REQUIRE(gameResult != -Stockfish::VALUE_MATE);
+            // auto gameResult = fairystockfish::gameResult(variantName, initialFEN,
+            // {}); REQUIRE(gameResult != -Stockfish::VALUE_MATE);
         }
 
         SUBCASE("Initial fen Valid opening move must result in valid piecemap") {
@@ -111,9 +111,9 @@ TEST_CASE("Chess Threefold") {
 
 TEST_CASE("Shogi checkmate FEN") {
     fairystockfish::init();
-    std::vector<std::string> mateFENs = {
-        "l2g1g1nl/5sk2/3p1p1p1/p3p1p1p/1n2n4/P4PP1P/1P1sPK1P1/5sR1+r/L4+p1N1[GPSBBglpp] w - - 4 38"
-    };
+    std::vector<std::string> mateFENs
+        = {"l2g1g1nl/5sk2/3p1p1p1/p3p1p1p/1n2n4/P4PP1P/1P1sPK1P1/5sR1+r/"
+           "L4+p1N1[GPSBBglpp] w - - 4 38"};
     for (auto const &fen : mateFENs) {
         auto position = fairystockfish::Position("shogi", fen);
         auto result   = position.gameResult();
@@ -157,7 +157,8 @@ TEST_CASE("Shogi FourFold") {
 TEST_CASE("Shogi checkmate FEN piecesInHand") {
     fairystockfish::init();
     std::string fen{
-        "l2g1g1nl/5sk2/3p1p1p1/p3p1p1p/1n2n4/P4PP1P/1P1sPK1P1/5sR1+r/L4+p1N1[GPSBBglpp] w - - 4 38"
+        "l2g1g1nl/5sk2/3p1p1p1/p3p1p1p/1n2n4/P4PP1P/1P1sPK1P1/5sR1+r/"
+        "L4+p1N1[GPSBBglpp] w - - 4 38"
     };
     auto position = fairystockfish::Position("shogi", fen);
     auto result   = position.piecesInHand();
@@ -374,9 +375,9 @@ TEST_CASE("Shogi Unforced repetition is a draw") {
     for (auto const &moves : notDrawnSituations) {
         auto position2 = position.makeMoves(moves);
         // std::cout << "isOptionalGameEnd() -> " << std::boolalpha <<
-        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
-        // std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant,
-        // initialFEN, moves, 0) << std::endl;
+        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN,
+        // moves)) << std::endl; std::cout << "isDraw(0) -> " << std::boolalpha <<
+        // fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
         REQUIRE(!std::get<0>(position2.isOptionalGameEnd()));
         REQUIRE(!position2.isDraw(0));
     }
@@ -402,9 +403,9 @@ TEST_CASE("Shogi Unforced repetition is a draw") {
     for (auto const &moves : soonDrawnSituations) {
         auto position2 = position.makeMoves(moves);
         // std::cout << "isOptionalGameEnd() -> " << std::boolalpha <<
-        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
-        // std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant,
-        // initialFEN, moves, 0) << std::endl;
+        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN,
+        // moves)) << std::endl; std::cout << "isDraw(0) -> " << std::boolalpha <<
+        // fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
         REQUIRE(!std::get<0>(position2.isOptionalGameEnd()));
         REQUIRE(!position2.isDraw(0));
     }
@@ -444,9 +445,9 @@ TEST_CASE("Shogi Unforced repetition is a draw") {
     for (auto const &moves : drawnSituations) {
         auto position2 = position.makeMoves(moves);
         // std::cout << "isOptionalGameEnd() -> " << std::boolalpha <<
-        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl;
-        // std::cout << "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant,
-        // initialFEN, moves, 0) << std::endl;
+        // std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN,
+        // moves)) << std::endl; std::cout << "isDraw(0) -> " << std::boolalpha <<
+        // fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl;
         auto result = position2.isOptionalGameEnd();
         REQUIRE(std::get<0>(result));
         REQUIRE(std::get<1>(result) == Stockfish::VALUE_DRAW);
@@ -640,8 +641,9 @@ TEST_CASE("makeMoves and shogi repetition") {
 }
 
 TEST_CASE("passing in othello") {
+    fairystockfish::init();
     fairystockfish::loadVariantConfig(R"variants(
-[flipersi]
+[psflipersi]
 immobile = p
 startFen = 8/8/8/8/8/8/8/8[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppp] w 0 1
 pieceDrops = true
@@ -657,13 +659,12 @@ immobilityIllegal = false
 flipEnclosedPieces = reversi
 passOnStalemate = false
 
-[flipello:flipersi]
+[psflipello:psflipersi]
 startFen = 8/8/8/3pP3/3Pp3/8/8/8[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppp] w 0 1
 passOnStalemate = true
     )variants");
-    fairystockfish::init();
 
-    fairystockfish::Position startingPos("flipello");
+    fairystockfish::Position startingPos("psflipello");
     std::vector<std::string> moves
         = {"P@d6",
            "P@c4",
@@ -767,7 +768,10 @@ TEST_CASE("5check game can continue after 3 checks") {
     }
 }
 
-TEST_CASE("Bug report https://github.com/Mind-Sports-Games/Fairy-Stockfish-Rust/issues/2") {
+TEST_CASE(
+    "Bug report "
+    "https://github.com/Mind-Sports-Games/Fairy-Stockfish-Rust/issues/2"
+) {
     fairystockfish::init();
 
     // black wins
@@ -1096,43 +1100,116 @@ TEST_CASE("Shogi Repetition") {
     std::string initialFEN = fairystockfish::initialFen(variant);
     std::vector<std::vector<std::string>> situations{
         {
-            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4",
-"c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7", "f4e4", "e6f6", "e4f4", "f6e6", "f4e4",
-"e6f6", "e4f4", "f6e6",
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6",
+"g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
         },
         {
-            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6", "g3g4", "c9c8", "c3c4",
-"c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7", "f4e4", "e6f6", "e4f4", "f6e6", "f4e4",
-"e6f6", "e4f4", "f6e6", "f4e4",
+            "h3h4", "e9d8", "h4h5", "d7d6", "h2h4", "d8d7", "h4f4", "d7e6",
+"g3g4", "c9c8", "c3c4", "c8d7", "b1c3", "g7g6", "g1f2", "f9g8", "d1d2", "g8g7",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4", "e6f6", "e4f4", "f6e6",
+            "f4e4",
         },
-        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7",
-"e9d8", "g7f6", "d8e9"},
+        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8",
+"g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9"},
         //{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"},
-        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7",
-"e9d8", "g7f6", "d8e9", "f6g7"},
-        //{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2",
-"a8b8", "h2i2", "b8a8", "i2h2", "a8b8"}
+        //{"c3c4", "a7a6", "b2g7+", "e9d8", "g7f6", "d8e9", "f6g7", "e9d8",
+"g7f6", "d8e9", "f6g7", "e9d8", "g7f6", "d8e9", "f6g7"},
+        //{"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8",
+"h2i2", "b8a8", "i2h2", "a8b8", "h2i2", "b8a8", "i2h2", "a8b8"}
     };
     for (auto const &moves : situations) {
         std::cout << "hasGameCycle(0) -> " << std::boolalpha <<
-fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl; std::cout <<
-"hasGameCycle(15) -> " << std::boolalpha << fairystockfish::hasGameCycle(variant, initialFEN, moves,
-15) << std::endl; std::cout << "hasRepeated() -> " << std::boolalpha <<
-fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl; std::cout << "isDraw(0) -> "
-<< std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 0) << std::endl; std::cout
-<< "isDraw(15) -> " << std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 15) <<
+fairystockfish::hasGameCycle(variant, initialFEN, moves, 0) << std::endl;
+        std::cout << "hasGameCycle(15) -> " << std::boolalpha <<
+fairystockfish::hasGameCycle(variant, initialFEN, moves, 15) << std::endl;
+        std::cout << "hasRepeated() -> " << std::boolalpha <<
+fairystockfish::hasRepeated(variant, initialFEN, moves) << std::endl; std::cout
+<< "isDraw(0) -> " << std::boolalpha << fairystockfish::isDraw(variant,
+initialFEN, moves, 0) << std::endl; std::cout << "isDraw(15) -> " <<
+std::boolalpha << fairystockfish::isDraw(variant, initialFEN, moves, 15) <<
 std::endl; std::cout << "isOptionalGameEnd() -> " << std::boolalpha <<
-std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) << std::endl; std::cout
-<< "isImmediateGameEnd() -> " << std::boolalpha <<
-std::get<0>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl; std::cout
-<< "isImmediateGameEnd() -> " << std::boolalpha <<
-std::get<1>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) << std::endl;
-        //std::cout << "gameResult() -> " << std::boolalpha << fairystockfish::gameResult(variant,
-initialFEN, moves) << std::endl; REQUIRE(fairystockfish::hasGameCycle(variant, initialFEN, moves,
-15)); REQUIRE(fairystockfish::hasRepeated(variant, initialFEN, moves));
+std::get<0>(fairystockfish::isOptionalGameEnd(variant, initialFEN, moves)) <<
+std::endl; std::cout << "isImmediateGameEnd() -> " << std::boolalpha <<
+std::get<0>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) <<
+std::endl; std::cout << "isImmediateGameEnd() -> " << std::boolalpha <<
+std::get<1>(fairystockfish::isImmediateGameEnd(variant, initialFEN, moves)) <<
+std::endl;
+        //std::cout << "gameResult() -> " << std::boolalpha <<
+fairystockfish::gameResult(variant, initialFEN, moves) << std::endl;
+        REQUIRE(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
+        REQUIRE(fairystockfish::hasRepeated(variant, initialFEN, moves));
         REQUIRE(fairystockfish::hasGameCycle(variant, initialFEN, moves, 0));
         REQUIRE(fairystockfish::hasGameCycle(variant, initialFEN, moves, 15));
         REQUIRE(fairystockfish::hasRepeated(variant, initialFEN, moves));
     }
 
 }*/
+
+TEST_CASE("minibreakthrough") {
+    fairystockfish::init();
+    fairystockfish::loadVariantConfig(R"variants(
+[breakthrough5:breakthrough]
+maxFile = 5
+maxRank = 5
+startFen = ppppp/ppppp/5/PPPPP/PPPPP w 0 1
+flagRegionWhite = *5
+flagRegionBlack = *1
+    )variants");
+
+    fairystockfish::Position startingPos("breakthrough5");
+
+    SUBCASE("The fastest win") {
+        auto pos = startingPos;
+
+        {
+            // The starting position should have legal moves
+            auto legalMoves = pos.getLegalMoves();
+            REQUIRE(legalMoves.size() != 0);
+            // And should not be the end of the game
+            auto [_, isEnd] = pos.isImmediateGameEnd();
+            REQUIRE(!isEnd);
+        }
+
+        {
+            std::vector<std::string> moves = {"a2b3", "e4d3", "b3a4", "d3e2"};
+            pos                            = pos.makeMoves(moves);
+
+            // Before we play the final move, there should be legal moves
+            auto legalMoves = pos.getLegalMoves();
+            REQUIRE(legalMoves.size() != 0);
+            // and stil no mate
+            auto [_, isEnd] = pos.isImmediateGameEnd();
+            REQUIRE(!isEnd);
+        }
+
+        {
+            std::vector<std::string> finishingMoves = {"a4b5"};
+            pos                                     = pos.makeMoves(finishingMoves);
+
+            // After we play the final move, there should be no legal moves
+            auto legalMoves = pos.getLegalMoves();
+            REQUIRE(legalMoves.size() == 0);
+            // and it should be a mate
+            auto [result, isEnd] = pos.isImmediateGameEnd();
+            REQUIRE(isEnd);
+            REQUIRE(result != -Stockfish::VALUE_MATE);
+        }
+        {
+            fairystockfish::Position posFromFen(
+                "breakthrough5", "pPppp/1ppp1/5/1PPPp/PPPPP b - - 0 3"
+            );
+
+            // Loading the game from a winning position should result in no
+            // legal moves
+            auto legalMoves = pos.getLegalMoves();
+            REQUIRE(legalMoves.size() == 0);
+            // and it should be a mate
+            auto [result, isEnd] = pos.isImmediateGameEnd();
+            REQUIRE(isEnd);
+            REQUIRE(result != -Stockfish::VALUE_MATE);
+        }
+    }
+}
