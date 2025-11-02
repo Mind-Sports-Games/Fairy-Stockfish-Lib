@@ -742,6 +742,22 @@ passOnStalemate = true
 TEST_CASE("passing in octagon flipello") {
     fairystockfish::init();
     fairystockfish::loadVariantConfig(R"variants(
+[ps-octagonflipello-notworking]
+maxRank = 10
+maxFile = 10
+immobile = p
+immobilityIllegal = false
+startFen = 10/10/10/10/4pP4/4Pp4/10/10/10/10[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp] w 0 1
+pieceDrops = true
+promotionPieceTypes = -
+doubleStep = false
+castling = false
+stalemateValue = loss
+stalematePieceCount = true
+materialCounting = unweighted
+enclosingDrop = reversi
+flipEnclosedPieces = reversi
+passOnStalemate = true
 [ps-octagonflipello]
 maxRank = 10
 maxFile = 10
@@ -762,7 +778,6 @@ flipEnclosedPieces = reversi
 passOnStalemate = true
     )variants");
 
-    fairystockfish::Position startingPos("ps-octagonflipello");
     std::vector<std::string> moves
         = {"P@g5", "P@g6", "P@h7", "P@h6", "P@d7", "P@d6", "P@f7", "P@f4", "P@f3", "P@e4",
            "P@h4", "P@h5", "P@c6", "P@e7", "P@f8", "P@g4", "P@i4", "P@j4", "P@i6", "P@j6",
@@ -770,18 +785,19 @@ passOnStalemate = true
            "P@i3", "P@j3", "P@h3", "P@i2", "P@d5", "P@i7", "P@d3", "P@g7", "P@i8", "P@i9",
            "P@g8", "P@h8", "P@h9", "P@f2", "P@g1", "P@f1", "P@h2", "P@h1", "P@g2", "P@h10"};
 
+    fairystockfish::Position startingPos("ps-octagonflipello");
+    fairystockfish::Position startingPosNotWorking("ps-octagonflipello-notworking");
     SUBCASE("offers pass when no moves available") {
-        auto pos = startingPos;
-        pos      = pos.makeMoves(moves);
+        auto pos           = startingPos.makeMoves(moves);
+        auto posNotWorking = startingPosNotWorking.makeMoves(moves);
 
-        auto legalMoves = pos.getLegalMoves();
-        std::cout << "Legal moves: ";
-        for (auto const &move : legalMoves) { std::cout << move << " "; }
-        std::cout << std::endl;
+        auto legalMoves           = pos.getLegalMoves();
+        auto legalMovesNotWorking = posNotWorking.getLegalMoves();
 
         // The test expects that when there are no regular moves,
         // there should be 1 legal move (the pass move)
         REQUIRE(legalMoves.size() == 1);
+        REQUIRE(legalMovesNotWorking.size() > 1);
 
         // In Fairy-Stockfish, pass moves are typically represented
         // as a move from a square to itself (e.g., "j9j9")
@@ -791,16 +807,24 @@ passOnStalemate = true
             // Pass moves have the form "XY" where from == to
             if (m.length() >= 4 && m.substr(0, 2) == m.substr(2, 2)) {
                 hasPassMove = true;
-                std::cout << "Pass move detected: " << m << std::endl;
                 break;
             }
         }
         REQUIRE(hasPassMove);
 
+        // In the non working case, there should not be a pass move
+        bool hasPassMoveNotWorking = true;
+        for (auto const &m : legalMovesNotWorking) {
+            // Pass moves have the form "XY" where from == to
+            if (m.length() >= 4 && m.substr(0, 2) == m.substr(2, 2)) {
+                hasPassMoveNotWorking = false;
+                break;
+            }
+        }
+        REQUIRE(hasPassMoveNotWorking);
+
         // The game should not be ended
         auto [isImmediate, result] = pos.isImmediateGameEnd();
-        std::cout << "Game end: " << std::boolalpha << isImmediate << ", Result: " << result
-                  << std::endl;
         REQUIRE(!isImmediate);
     }
 }
